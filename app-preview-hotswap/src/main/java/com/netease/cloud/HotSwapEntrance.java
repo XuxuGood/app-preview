@@ -29,22 +29,19 @@ public class HotSwapEntrance {
         // 加载配置文件
         new HotSwapConfiguration().loadConfigurationFile();
         // 注册热部署远程调用服务
-        registryHotDeployService(args, inst);
+        registryHotDeployService();
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
     }
 
     /**
      * 注册热部署远程调用服务
-     *
-     * @param args
-     * @param inst
      */
-    private static void registryHotDeployService(String args, Instrumentation inst) throws RemoteException {
+    private static void registryHotDeployService() throws RemoteException {
         // 创建远程对象实例
         IHotDeployService hotDeployService = new IHotDeployServiceImpl();
         // 导出远程对象，绑定到指定端口
-        Registry registry = LocateRegistry.createRegistry(2024);
+        Registry registry = LocateRegistry.createRegistry(HotSwapConfiguration.getInstance().getRemotePort());
         registry.rebind("HotDeployService", hotDeployService);
     }
 
