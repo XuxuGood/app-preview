@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ser.SerializerCache;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.liubs.findinstances.jvmti.InstancesOfClass;
 import com.netease.cloud.extension.IHotExtHandler;
-import com.netease.cloud.extension.logging.Logger;
+import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.util.ReflectionHelper;
 
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import java.util.Map;
  * @date 2024/1/1
  **/
 public class SpringMVCJacksonCacheClear implements IHotExtHandler {
-    private static Logger logger = Logger.getLogger(SpringMVCJacksonCacheClear.class);
+    private static AgentLogger logger = AgentLogger.getLogger(SpringMVCJacksonCacheClear.class);
 
     private List<ObjectMapper> objectMappers;
     private List<SerializerCache> serializerCaches;

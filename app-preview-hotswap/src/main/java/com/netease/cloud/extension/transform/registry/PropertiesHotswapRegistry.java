@@ -2,9 +2,9 @@ package com.netease.cloud.extension.transform.registry;
 
 import com.netease.cloud.extension.annotations.ClassTransform;
 import com.netease.cloud.extension.annotations.OnClassLoad;
-import com.netease.cloud.extension.logging.Logger;
 import com.netease.cloud.extension.manager.AllExtensionsManager;
 import com.netease.cloud.extension.properties.PropertiesHotswap;
+import org.hotswap.agent.logging.AgentLogger;
 
 /**
  * @Author xiaoxuxuy
@@ -14,7 +14,7 @@ import com.netease.cloud.extension.properties.PropertiesHotswap;
 @ClassTransform
 public class PropertiesHotswapRegistry {
 
-    private static Logger logger = Logger.getLogger(VelocityRegistry.class);
+    private static AgentLogger logger = AgentLogger.getLogger(VelocityRegistry.class);
 
     @OnClassLoad(className = "org.springframework.boot.SpringApplication")
     public static void registryOnClass() {

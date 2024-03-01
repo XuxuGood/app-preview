@@ -1,11 +1,11 @@
 package com.netease.cloud.extension.container;
 
 import com.netease.cloud.extension.IHotExtHandler;
-import com.netease.cloud.extension.logging.Logger;
 import com.netease.cloud.extension.transform.mybatis.MyBatisClassPathMapperScannerPatch;
 import com.netease.cloud.extension.transform.mybatis.MyBatisSpringBeanDefinition;
 import com.netease.cloud.extension.util.ReflectUtil;
 import org.apache.ibatis.session.Configuration;
+import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import org.hotswap.agent.util.ReflectionHelper;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * @date 2023/7/9 9:22 PM
  */
 public class MyBatisBeanRefresh implements IHotExtHandler {
-    private static Logger logger = Logger.getLogger(MyBatisClassPathMapperScannerPatch.class);
+    private static AgentLogger logger = AgentLogger.getLogger(MyBatisClassPathMapperScannerPatch.class);
 
     @Override
     public void afterHandle(ClassLoader classLoader, Class<?> classz, String path, byte[] bytes) {

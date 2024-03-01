@@ -2,8 +2,8 @@ package com.netease.cloud.extension.transform.mybatis;
 
 import com.netease.cloud.extension.annotations.RemoteMethodTest;
 import com.netease.cloud.extension.container.MyBatisBeanRefresh;
-import com.netease.cloud.extension.logging.Logger;
 import com.netease.cloud.extension.manager.AllExtensionsManager;
+import org.hotswap.agent.logging.AgentLogger;
 import org.mybatis.spring.mapper.ClassPathMapperScanner;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 
@@ -17,7 +17,7 @@ import java.util.Set;
  * @date 2023/7/9 10:17 PM
  **/
 public class MyBatisSpringBeanDefinition {
-    private static Logger logger = Logger.getLogger(MyBatisClassPathMapperScannerPatch.class);
+    private static AgentLogger logger = AgentLogger.getLogger(MyBatisClassPathMapperScannerPatch.class);
     private static ClassPathMapperScanner mapperScanner;
 
 

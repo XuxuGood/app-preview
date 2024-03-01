@@ -2,10 +2,10 @@ package com.netease.cloud.extension.transform.mybatis;
 
 import com.netease.cloud.extension.annotations.ClassTransform;
 import com.netease.cloud.extension.annotations.OnClassLoad;
-import com.netease.cloud.extension.logging.Logger;
 import org.hotswap.agent.javassist.ClassPool;
 import org.hotswap.agent.javassist.CtClass;
 import org.hotswap.agent.javassist.CtConstructor;
+import org.hotswap.agent.logging.AgentLogger;
 
 
 /**
@@ -17,7 +17,7 @@ import org.hotswap.agent.javassist.CtConstructor;
 
 @ClassTransform
 public class MyBatisClassPathMapperScannerPatch {
-    private static Logger logger = Logger.getLogger(MyBatisClassPathMapperScannerPatch.class);
+    private static AgentLogger logger = AgentLogger.getLogger(MyBatisClassPathMapperScannerPatch.class);
 
     /**
      *  ClassPathMapperScanner 构造函数插桩，获取ClassPathMapperScanner实例

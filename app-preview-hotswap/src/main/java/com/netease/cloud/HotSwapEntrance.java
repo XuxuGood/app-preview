@@ -3,6 +3,7 @@ package com.netease.cloud;
 import com.netease.cloud.config.HotSwapConfiguration;
 import com.netease.cloud.extension.transform.HotSwapExtManager;
 import com.netease.cloud.extension.transform.HotSwapExtTransformer;
+import com.netease.cloud.extension.transform.demo.Boy;
 import com.netease.cloud.service.IHotDeployService;
 import com.netease.cloud.service.impl.IHotDeployServiceImpl;
 import org.hotswap.agent.HotswapAgent;
@@ -29,13 +30,16 @@ public class HotSwapEntrance {
         // 解析参数
         parseArgs(args);
         // 加载配置文件
-        new HotSwapConfiguration().loadConfigurationFile();
+        HotSwapConfiguration.getInstance().loadConfigurationFile();
         // 注册热部署远程调用服务
         registryHotDeployService();
         // 初始化热部署扩展
         HotSwapExtManager.getInstance().init(inst);
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
+
+        Boy boy = new Boy();
+        boy.printAll();
     }
 
     /**
@@ -67,10 +71,6 @@ public class HotSwapEntrance {
 
             String option = val[0];
             String optionValue = val[1];
-
-            if (!"hotConf".equals(option)) {
-                LOGGER.warning("Invalid javaagent option '{}'. Argument '{}' is ignored.", option, arg);
-            }
 
             if ("hotConf".equals(option)) {
                 hotSwapConfigFilePath = optionValue;

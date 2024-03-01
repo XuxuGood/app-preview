@@ -1,6 +1,6 @@
 package com.netease.cloud.extension.util;
 
-import com.netease.cloud.extension.logging.Logger;
+import org.hotswap.agent.logging.AgentLogger;
 
 import java.lang.reflect.Field;
 
@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
  * @date 2023/7/9 11:58 PM
  **/
 public class ReflectUtil {
-    private static Logger logger = Logger.getLogger(ReflectUtil.class);
+    private static AgentLogger logger = AgentLogger.getLogger(ReflectUtil.class);
 
     public static<F,T> F getField(T obj, String fieldName)  {
         try{

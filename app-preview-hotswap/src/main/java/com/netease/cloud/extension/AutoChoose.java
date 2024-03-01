@@ -1,8 +1,8 @@
 package com.netease.cloud.extension;
 
 import com.netease.cloud.extension.exception.RemoteItException;
-import com.netease.cloud.extension.logging.Logger;
 import com.netease.cloud.extension.manager.AllExtensionsManager;
+import org.hotswap.agent.logging.AgentLogger;
 
 import java.util.Iterator;
 
@@ -15,7 +15,7 @@ import java.util.Iterator;
  */
 public class AutoChoose implements IHotExtHandler {
 
-    private static final Logger logger = Logger.getLogger(AutoChoose.class);
+    private static final AgentLogger logger = AgentLogger.getLogger(AutoChoose.class);
 
     @Override
     public byte[] preHandle(ClassLoader classLoader, String path, byte[] content) {

@@ -1,7 +1,7 @@
 package com.netease.cloud.extension.properties;
 
 import com.netease.cloud.extension.IHotExtHandler;
-import com.netease.cloud.extension.logging.Logger;
+import org.hotswap.agent.logging.AgentLogger;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class PropertiesHotswap implements IHotExtHandler {
 
-    private static Logger logger = Logger.getLogger(PropertiesHotswap.class);
+    private static AgentLogger logger = AgentLogger.getLogger(PropertiesHotswap.class);
 
     @Override
     public void afterHandle(ClassLoader classLoader, Class<?> classz, String path, byte[] content) {

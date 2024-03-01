@@ -3,8 +3,8 @@ package com.netease.cloud.extension.transform.spring;
 import com.netease.cloud.extension.annotations.ClassTransform;
 import com.netease.cloud.extension.annotations.OnClassLoad;
 import com.netease.cloud.extension.cache.SpringMVCJacksonCacheClear;
-import com.netease.cloud.extension.logging.Logger;
 import com.netease.cloud.extension.manager.AllExtensionsManager;
+import org.hotswap.agent.logging.AgentLogger;
 
 /**
  * @author Liubsyy
@@ -12,7 +12,7 @@ import com.netease.cloud.extension.manager.AllExtensionsManager;
  **/
 @ClassTransform
 public class SpringMVCJacksonRegistry {
-    private static Logger logger = Logger.getLogger(SpringMVCJacksonRegistry.class);
+    private static AgentLogger logger = AgentLogger.getLogger(SpringMVCJacksonRegistry.class);
 
     @OnClassLoad(className = "com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap")
     public static void registryReadOnlyClassToSerializerMap() {

@@ -3,8 +3,8 @@ package com.netease.cloud.extension.transform.registry;
 import com.netease.cloud.extension.annotations.ClassTransform;
 import com.netease.cloud.extension.annotations.OnClassLoad;
 import com.netease.cloud.extension.cache.VelocityHtmlCacheClear;
-import com.netease.cloud.extension.logging.Logger;
 import com.netease.cloud.extension.manager.AllExtensionsManager;
+import org.hotswap.agent.logging.AgentLogger;
 
 /**
  * @author Liubsyy
@@ -13,7 +13,7 @@ import com.netease.cloud.extension.manager.AllExtensionsManager;
  **/
 @ClassTransform
 public class VelocityRegistry {
-    private static Logger logger = Logger.getLogger(VelocityRegistry.class);
+    private static AgentLogger logger = AgentLogger.getLogger(VelocityRegistry.class);
 
     @OnClassLoad(className = "org.apache.velocity.runtime.RuntimeSingleton")
     public static void registryOnClass() {

@@ -1,9 +1,9 @@
 package com.netease.cloud.extension.jacoco;
 
 import com.google.gson.reflect.TypeToken;
-import com.netease.cloud.extension.logging.Logger;
 import com.netease.cloud.extension.util.IPUtil;
 import com.netease.cloud.extension.util.JsonUtils;
+import org.hotswap.agent.logging.AgentLogger;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 这个类的作用是，热部署完重新部署前，将执行的jacoco数据保存下来，等下次部署的时候再读取出来和源码比对，生成新的覆盖率报告
  */
 public class JacocoDataStorage implements IJacocoDataStorage {
-    private static Logger logger = Logger.getLogger(JacocoDataStorage.class);
+    private static AgentLogger logger = AgentLogger.getLogger(JacocoDataStorage.class);
 
     private static JacocoDataStorage storage = new JacocoDataStorage();
 

@@ -1,7 +1,7 @@
 package com.netease.cloud.extension.manager;
 
 import com.netease.cloud.extension.IHotExtHandler;
-import com.netease.cloud.extension.logging.Logger;
+import org.hotswap.agent.logging.AgentLogger;
 
 import java.util.Collection;
 import java.util.Map;
@@ -12,15 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Liubsyy
  */
 public class AllExtensionsManager {
-    private static final Logger logger = Logger.getLogger(AllExtensionsManager.class);
+    private static final AgentLogger logger = AgentLogger.getLogger(AllExtensionsManager.class);
 
     private Map<Class<?>, IHotExtHandler> allHandlers = new ConcurrentHashMap<>();
 
     private static AllExtensionsManager instance = new AllExtensionsManager();
+
     static {
         //如果某个handler 100%要注册，写在这
-        //instance.addHotExtHandler(new com.liubs.hotseconds.extension.cache.VelocityHtmlCacheClear());
+        //instance.addHotExtHandler(new com.netease.cloud.extension.cache.VelocityHtmlCacheClear());
     }
+
     public static AllExtensionsManager getInstance() {
         return instance;
     }

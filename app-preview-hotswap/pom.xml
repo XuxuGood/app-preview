@@ -28,12 +28,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hotswapagent</groupId>
-            <artifactId>hotswap-agent</artifactId>
-            <version>1.4.2-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>4.3.2.RELEASE</version>
@@ -56,7 +50,7 @@
         <dependency>
             <groupId>org.hotswapagent</groupId>
             <artifactId>hotswap-agent</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.2-SNAPSHOT</version>
             <optional>true</optional>
 
             <exclusions>
