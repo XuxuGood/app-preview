@@ -26,6 +26,7 @@ public interface IHotDeployService extends Remote {
 
     /**
      * 批量热更新修改的java
+     * 批量热更新不支持前置与后置处理
      *
      * @param requestList
      * @return

@@ -66,6 +66,7 @@ public class IHotDeployServiceImpl extends UnicastRemoteObject implements IHotDe
                 Class<?> aClass = Class.forName(className);
                 // 前置处理
                 autoChoose.preHandle(contextClassLoader, className, request.getBytes());
+
                 // 后置处理
                 autoChoose.afterHandle(contextClassLoader, aClass, className, request.getBytes());
 
