@@ -19,8 +19,6 @@ public class HotSwapConfiguration {
     private static volatile HotSwapConfiguration instance;
 
     public int remotePort;
-    public String classloader;
-    public String devExtClassName;
 
     public HotSwapConfiguration() {
     }
@@ -50,16 +48,6 @@ public class HotSwapConfiguration {
         // 获取remote_port节点的值
         this.remotePort = Integer.parseInt(root.getElementsByTagName("remote_port").item(0).getTextContent());
 
-        // 获取classloader节点的值
-        this.classloader = root.getElementsByTagName("classloader").item(0).getTextContent();
-
-        // 获取dev-ext节点下的classname节点的值
-        NodeList devExtList = root.getElementsByTagName("dev-ext");
-        if (devExtList.getLength() > 0) {
-            Element devExt = (Element) devExtList.item(0);
-            this.devExtClassName = devExt.getElementsByTagName("classname").item(0).getTextContent();
-        }
-
         instance = this;
     }
 
@@ -69,22 +57,6 @@ public class HotSwapConfiguration {
 
     public void setRemotePort(int remotePort) {
         this.remotePort = remotePort;
-    }
-
-    public String getClassloader() {
-        return classloader;
-    }
-
-    public void setClassloader(String classloader) {
-        this.classloader = classloader;
-    }
-
-    public String getDevExtClassName() {
-        return devExtClassName;
-    }
-
-    public void setDevExtClassName(String devExtClassName) {
-        this.devExtClassName = devExtClassName;
     }
 
 }

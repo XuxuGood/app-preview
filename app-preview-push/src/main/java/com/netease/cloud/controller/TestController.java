@@ -1,5 +1,6 @@
 package com.netease.cloud.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,11 +19,6 @@ public class TestController {
     @RequestMapping("/hello")
     public String hello() {
         return "hello world";
-    }
-
-    @RequestMapping("/hello1")
-    public String hello1() {
-        return name;
     }
 
 }

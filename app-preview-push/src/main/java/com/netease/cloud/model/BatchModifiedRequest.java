@@ -13,9 +13,7 @@ public class BatchModifiedRequest implements Serializable {
     private static final long serialVersionUID = 2023L;
 
     private String className;
-    private List<String> paths;
     private byte[] bytes;
-
 
     public String getClassName() {
         return className;
@@ -23,14 +21,6 @@ public class BatchModifiedRequest implements Serializable {
 
     public void setClassName(String className) {
         this.className = className;
-    }
-
-    public List<String> getPaths() {
-        return paths;
-    }
-
-    public void setPaths(List<String> paths) {
-        this.paths = paths;
     }
 
     public byte[] getBytes() {

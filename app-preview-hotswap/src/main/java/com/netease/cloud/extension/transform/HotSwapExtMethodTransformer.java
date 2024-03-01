@@ -44,7 +44,7 @@ public class HotSwapExtMethodTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> redefiningClass,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        LOGGER.info("Transforming.... '{}' using: '{}'", className, extTransformAnnotation);
+        LOGGER.trace("Transforming.... '{}' using: '{}'", className, extTransformAnnotation);
 
         // default result
         byte[] result = classfileBuffer;

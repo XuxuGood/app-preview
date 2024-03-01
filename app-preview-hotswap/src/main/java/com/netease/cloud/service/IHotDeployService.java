@@ -22,7 +22,7 @@ public interface IHotDeployService extends Remote {
      * @return
      * @throws RemoteException
      */
-    String uploadResourceFile(String path, String content) throws RemoteException;
+    HotSwapResponse uploadResourceFile(String path, String content) throws RemoteException;
 
     /**
      * 批量热更新修改的java

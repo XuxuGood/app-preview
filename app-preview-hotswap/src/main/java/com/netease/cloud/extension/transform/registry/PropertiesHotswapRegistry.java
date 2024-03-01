@@ -11,7 +11,7 @@ import org.hotswap.agent.logging.AgentLogger;
  * @Date 2024年02月27日
  * @Version: 1.0
  */
-@ClassTransform
+//@ClassTransform
 public class PropertiesHotswapRegistry {
 
     private static AgentLogger logger = AgentLogger.getLogger(VelocityRegistry.class);

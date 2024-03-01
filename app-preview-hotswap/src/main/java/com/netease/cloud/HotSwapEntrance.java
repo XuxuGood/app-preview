@@ -45,7 +45,7 @@ public class HotSwapEntrance {
     /**
      * 注册热部署远程调用服务
      */
-    private static void registryHotDeployService() throws RemoteException {
+    private static void registryHotDeployService() throws Exception {
         // 创建远程对象实例
         IHotDeployService hotDeployService = new IHotDeployServiceImpl();
         // 导出远程对象，绑定到指定端口

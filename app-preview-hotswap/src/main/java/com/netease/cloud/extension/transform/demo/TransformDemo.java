@@ -3,7 +3,6 @@ package com.netease.cloud.extension.transform.demo;
 import com.netease.cloud.extension.annotations.ClassTransform;
 import com.netease.cloud.extension.annotations.OnClassLoad;
 import com.netease.cloud.extension.annotations.RemoteMethodTest;
-import org.hotswap.agent.annotation.OnClassLoadEvent;
 import org.hotswap.agent.javassist.*;
 
 /**
@@ -23,7 +22,6 @@ public class TransformDemo {
     @OnClassLoad(className = "com.netease.cloud.extension.transform.demo.Boy")
     public static void whenLoadClassBoy(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         try{
-            System.out.println("sadasdasdas");
             ctClass.addField(CtField.make("public static int age = 22;", ctClass));
         }catch (Exception e) {
             e.printStackTrace();

@@ -13,9 +13,23 @@ public class HotSwapResponse implements Serializable {
 
     private boolean success;
     private int code;
-    private String message;
+    private String msg;
     private Object data;
 
+    public HotSwapResponse(boolean success, Integer code, String msg, Object data) {
+        this.success = success;
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
+
+    public static HotSwapResponse success(Object data) {
+        return new HotSwapResponse(true, 200, "success", data);
+    }
+
+    public static HotSwapResponse errorOf(String msg, Object data) {
+        return new HotSwapResponse(false, 400, msg, data);
+    }
 
     public boolean isSuccess() {
         return success;
@@ -33,16 +47,16 @@ public class HotSwapResponse implements Serializable {
         this.code = code;
     }
 
-    public String getMessage() {
-        return message;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getResult() {
+    public <T> T getData() {
         return (T) data;
     }
 

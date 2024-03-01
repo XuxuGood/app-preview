@@ -39,38 +39,21 @@ public class HotSwapCall {
         IHotDeployService hotDeploy = (IHotDeployService) registry.lookup("HotDeployService");
 
         // 更新配置文件
-        String resourceFile = hotDeploy.uploadResourceFile("/www/hotswap/start/BOOT-INF/classes/application.properties",
+//        HotSwapResponse response = hotDeploy.uploadResourceFile("/www/hotswap/start/BOOT-INF/classes/application.properties",
+//                new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/制品库测试项目/artifactory-maven/src/main/resources/application.properties")), StandardCharsets.ISO_8859_1));
+//        System.out.println("HotSeconds response:" + JSON.toJSONString(response));
+
+        HotSwapResponse response = hotDeploy.uploadResourceFile("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/application.properties",
                 new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/制品库测试项目/artifactory-maven/src/main/resources/application.properties")), StandardCharsets.ISO_8859_1));
-        System.out.println("HotSeconds response:" + resourceFile);
+        System.out.println("HotSeconds response:" + JSON.toJSONString(response));
 
         List<BatchModifiedRequest> requestList = new ArrayList<>();
 
         BatchModifiedRequest request = new BatchModifiedRequest();
         //热更新类名
-        request.setClassName("com.artifactory.demo.config.ConfigTest");
+        request.setClassName("com.netease.cloud.controller.TestController");
         //热更新的字节码
-        request.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/制品库测试项目/artifactory-maven/target/classes/com/artifactory/demo/config/ConfigTest.class")));
-        requestList.add(request);
-
-        request = new BatchModifiedRequest();
-        //热更新类名
-        request.setClassName("com.artifactory.demo.config.ConfigTest2");
-        //热更新的字节码
-        request.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/制品库测试项目/artifactory-maven/target/classes/com/artifactory/demo/config/ConfigTest2.class")));
-        requestList.add(request);
-
-        request = new BatchModifiedRequest();
-        //热更新类名
-        request.setClassName("com.artifactory.demo.config.TestA");
-        //热更新的字节码
-        request.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/制品库测试项目/artifactory-maven/target/classes/com/artifactory/demo/config/TestA.class")));
-        requestList.add(request);
-
-        request = new BatchModifiedRequest();
-        //热更新类名
-        request.setClassName("com.artifactory.demo.controller.TestController");
-        //热更新的字节码
-        request.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/制品库测试项目/artifactory-maven/target/classes/com/artifactory/demo/controller/TestController.class")));
+        request.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/TestController.class")));
         requestList.add(request);
 
         HotSwapResponse hotSwapResponse = hotDeploy.batchHotswapModifiedJava(requestList);

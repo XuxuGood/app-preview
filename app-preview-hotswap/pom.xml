@@ -20,13 +20,6 @@
     </properties>
 
     <dependencies>
-        <!-- 获取Class的所有对象实例，不用在构造函数插入字节码来获取某个对象 -->
-        <dependency>
-            <groupId>io.github.liubsyy</groupId>
-            <artifactId>FindInstancesOfClass</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
