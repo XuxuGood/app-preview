@@ -1,9 +1,8 @@
 package com.netease.cloud;
 
 import com.netease.cloud.config.HotSwapConfiguration;
-import com.netease.cloud.extension.processor.ClassTransformProcessor;
-import com.netease.cloud.extension.transform.demo.Boy;
-import com.netease.cloud.extension.transform.demo.TransformDemo;
+import com.netease.cloud.extension.transform.HotSwapExtManager;
+import com.netease.cloud.extension.transform.HotSwapExtTransformer;
 import com.netease.cloud.service.IHotDeployService;
 import com.netease.cloud.service.impl.IHotDeployServiceImpl;
 import org.hotswap.agent.HotswapAgent;
@@ -33,15 +32,8 @@ public class HotSwapEntrance {
         new HotSwapConfiguration().loadConfigurationFile();
         // 注册热部署远程调用服务
         registryHotDeployService();
-
-        // 使用 ClassTransformProcessor 来处理带有 @ClassTransform 注解的类
-        ClassTransformProcessor.transform();
-
-        // 在加载 Boy 类时，会触发 whenLoadClassBoy 方法的调用，并为 Boy 类添加一个名为 age 的静态字段
-        Boy boy = new Boy();
-        System.out.println(boy.printAll());
-
-
+        // 初始化热部署扩展
+        HotSwapExtManager.getInstance().init(inst);
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
     }
