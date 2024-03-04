@@ -1,8 +1,8 @@
 package com.netease.cloud.hotswap;
 
-import com.netease.cloud.core.model.BatchModifiedClassRequest;
-import com.netease.cloud.core.model.BatchModifiedResourceRequest;
-import com.netease.cloud.extension.util.JsonUtils;
+import com.netease.cloud.model.BatchModifiedClassRequest;
+import com.netease.cloud.model.BatchModifiedResourceRequest;
+import com.netease.cloud.utils.JsonUtils;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -22,7 +22,6 @@ public class HotSwapCall {
     public static void main(String[] args) throws IOException {
         // 热更新配置文件
         hotswapResource();
-
         // 热更新类
         hotswapClass();
     }
@@ -58,7 +57,8 @@ public class HotSwapCall {
         OkHttpClient client = MyHttpClient.getClient();
 
         BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
-        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/application.properties");
+//        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/application.properties");
+        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/application.properties");
         resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/application.properties"))));
 
         MediaType mediaType = MediaType.parse("application/json");
@@ -71,11 +71,6 @@ public class HotSwapCall {
         Call call = client.newCall(request);
         Response response = call.execute();
         System.out.println("hotswap response:" + Objects.requireNonNull(response.body()).string());
-
-        //        HotSwapResponse response = hotDeploy.uploadResourceFile("/www/hotswap/start/BOOT-INF/classes/application.properties",
-//                new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/制品库测试项目/artifactory-maven/src/main/resources/application.properties")), StandardCharsets.ISO_8859_1));
-//        System.out.println("HotSeconds response:" + JSON.toJSONString(response));
-
     }
 
 }
