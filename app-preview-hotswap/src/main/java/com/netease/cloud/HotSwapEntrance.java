@@ -6,7 +6,9 @@ import io.vertx.core.Vertx;
 import org.hotswap.agent.HotswapAgent;
 import org.hotswap.agent.logging.AgentLogger;
 
+import java.io.File;
 import java.lang.instrument.Instrumentation;
+import java.util.jar.JarFile;
 
 /**
  * @Author xiaoxuxuy

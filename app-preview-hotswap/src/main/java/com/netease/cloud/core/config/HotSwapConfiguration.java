@@ -1,7 +1,6 @@
 package com.netease.cloud.core.config;
 
 import com.netease.cloud.HotSwapEntrance;
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -40,7 +39,7 @@ public class HotSwapConfiguration {
         // 创建一个DocumentBuilder对象
         DocumentBuilder builder = factory.newDocumentBuilder();
 
-        if (StringUtils.isBlank(HotSwapEntrance.getHotSwapConfigFile())){
+        if (HotSwapEntrance.getHotSwapConfigFile() == null || HotSwapEntrance.getHotSwapConfigFile().equals("")) {
             return;
         }
 

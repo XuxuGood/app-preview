@@ -49,12 +49,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.14.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>4.3.2.RELEASE</version>
@@ -131,6 +125,8 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.hotswapagent:hotswap-agent</include>
+                                    <include>io.vertx:*</include>
+                                    <include>io.netty:*</include>
                                 </includes>
                             </artifactSet>
                             <filters>
