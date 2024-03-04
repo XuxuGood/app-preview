@@ -20,6 +20,8 @@ public class VertxApplication extends AbstractVerticle {
 
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotswapAgent.class);
 
+    private static final int defaultPort = 8090;
+
     /**
      * 启动vertx web
      *
@@ -27,12 +29,17 @@ public class VertxApplication extends AbstractVerticle {
      */
     @Override
     public void start() throws Exception {
+        int remotePort = HotSwapConfiguration.getInstance().getRemotePort();
+        if (remotePort <= 0) {
+            remotePort = defaultPort;
+        }
+
         HttpServer httpServer = vertx.createHttpServer();
         Router router = Router.router(vertx);
         router.post("/app-preview/hotswap/class").handler(new HotSwapClassFileHandler());
         router.post("/app-preview/hotswap/resource").handler(new HotSwapResourceFileHandler());
         httpServer.requestHandler(router)
-                .listen(HotSwapConfiguration.getInstance().getRemotePort())
+                .listen(remotePort)
                 .onSuccess(server -> LOGGER.info("hotswap http server started on port " + server.actualPort()))
                 .onFailure(cause -> LOGGER.error("hotswap http server failed to start", cause));
     }

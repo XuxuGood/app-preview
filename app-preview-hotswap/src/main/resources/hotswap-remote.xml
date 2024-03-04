@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <netease>
-    <!-- 远程端口 -->
+    <!-- 远程端口，默认8090 -->
     <remote_port>8090</remote_port>
 </netease>
