@@ -51,9 +51,15 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>4.3.2.RELEASE</version>
-            <optional>true</optional>
+            <version>5.3.32</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-context</artifactId>-->
+<!--            <version>4.3.2.RELEASE</version>-->
+<!--            <optional>true</optional>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -125,12 +131,14 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.hotswapagent:hotswap-agent</include>
-                                    <include>io.vertx:*</include>
-                                    <include>io.netty:*</include>
-                                    <include>com.google.code.gson:gson</include>
-                                    <include>com.fasterxml.jackson.core:jackson-core</include>
-                                    <include>com.fasterxml.jackson.core:jackson-databind</include>
-                                    <include>com.fasterxml.jackson.core:jackson-annotations</include>
+<!--                                    <include>io.vertx:*</include>-->
+<!--                                    <include>io.netty:*</include>-->
+<!--                                    <include>org.springframework:spring-context</include>-->
+<!--                                    <include>com.google.code.gson:*</include>-->
+<!--                                    <include>com.fasterxml.jackson.core:*</include>-->
+<!--                                    <include>com.baomidou:*</include>-->
+<!--                                    <include>org.reflections:*</include>-->
+<!--                                    <include>commons-logging:*</include>-->
                                 </includes>
                             </artifactSet>
                             <filters>

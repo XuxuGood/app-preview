@@ -1,11 +1,15 @@
 package com.netease.cloud.core.model;
 
+import java.io.Serializable;
+
 /**
  * @Author xiaoxuxuy
  * @Date 2024年02月29日
  * @Version: 1.0
  */
-public class BatchModifiedClassRequest {
+public class BatchModifiedClassRequest implements Serializable {
+
+    private static final long serialVersionUID = 2024L;
 
     private String className;
     private byte[] bytes;
