@@ -42,9 +42,12 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             Type listType = TypeToken.getParameterized(List.class, BatchModifiedClassRequest.class).getType();
             List<BatchModifiedClassRequest> requestList = JsonUtils.parse(bodyString, listType);
 
-            LOGGER.debug("hotswap request params: {}, to pojo: {}", bodyString, requestList);
+            LOGGER.info("hotswap request params: {}, to pojo: {}", bodyString, requestList);
 
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            ClassLoader appClassLoader = ClassLoader.getSystemClassLoader();
+            LOGGER.info("当前更新classloader为: {}", contextClassLoader.getClass().getName());
+            LOGGER.info("当前系统更新classloader为: {}", appClassLoader.getClass().getName());
 
             Map<Class<?>, byte[]> reloadMap = new LinkedHashMap<>();
 
@@ -68,9 +71,11 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                     }
                 });
             } catch (Exception e) {
-                HotSwapResponse success = HotSwapResponse.of("hotswap file error", 400, e.getMessage());
+                LOGGER.error("hotswap class file error", e);
+                HotSwapResponse success = HotSwapResponse.of("hotswap class file error", 400, e.getMessage());
                 HttpServerResponse response = routingContext.response();
                 response.end(JsonObject.mapFrom(success).toBuffer());
+                return;
             }
 
             // 热更新
