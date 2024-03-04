@@ -1,16 +1,14 @@
 package com.netease.cloud;
 
-import com.netease.cloud.config.HotSwapConfiguration;
+import com.netease.cloud.core.config.HotSwapConfiguration;
 import com.netease.cloud.extension.transform.HotSwapExtManager;
-import com.netease.cloud.extension.transform.HotSwapExtTransformer;
-import com.netease.cloud.extension.transform.demo.Boy;
-import com.netease.cloud.service.IHotDeployService;
-import com.netease.cloud.service.impl.IHotDeployServiceImpl;
+import com.netease.cloud.core.service.IHotDeployService;
+import com.netease.cloud.core.service.impl.IHotDeployServiceImpl;
+import io.vertx.core.Vertx;
 import org.hotswap.agent.HotswapAgent;
 import org.hotswap.agent.logging.AgentLogger;
 
 import java.lang.instrument.Instrumentation;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -25,6 +23,13 @@ public class HotSwapEntrance {
 
     private static String hotSwapConfigFilePath;
 
+    /**
+     * 热部署入口
+     *
+     * @param args 参数
+     * @param inst 字节码增强
+     * @throws Exception 异常
+     */
     public static void premain(String args, Instrumentation inst) throws Exception {
         LOGGER.info("hotswap start...");
         // 解析参数
@@ -32,14 +37,13 @@ public class HotSwapEntrance {
         // 加载配置文件
         HotSwapConfiguration.getInstance().loadConfigurationFile();
         // 注册热部署远程调用服务
-        registryHotDeployService();
+//        registryHotDeployService();
         // 初始化热部署扩展
         HotSwapExtManager.getInstance().init(inst);
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
-
-        Boy boy = new Boy();
-        boy.printAll();
+        // 启动 vertx http 服务
+        Vertx.vertx().deployVerticle(new VertxApplication());
     }
 
     /**

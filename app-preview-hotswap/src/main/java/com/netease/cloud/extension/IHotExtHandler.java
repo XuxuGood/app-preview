@@ -10,9 +10,9 @@ public interface IHotExtHandler {
     /**
      * before you hotswap file
      *
-     * @param classLoader
-     * @param path
-     * @param content
+     * @param classLoader classLoader
+     * @param path        upload to path
+     * @param content     content
      * @return your modified bytes
      */
     default byte[] preHandle(ClassLoader classLoader, String path, byte[] content) {
@@ -22,10 +22,10 @@ public interface IHotExtHandler {
     /**
      * after you hotswap file
      *
-     * @param classLoader
-     * @param classz      : if file is not java class ,classz is null
-     * @param path        : upload to path
-     * @param content
+     * @param classLoader classLoader
+     * @param classz      if file is not java class ,classz is null
+     * @param path        upload to path
+     * @param content     content
      */
     void afterHandle(ClassLoader classLoader, Class<?> classz, String path, byte[] content);
 

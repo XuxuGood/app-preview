@@ -1,7 +1,7 @@
-package com.netease.cloud.service;
+package com.netease.cloud.core.service;
 
-import com.netease.cloud.model.BatchModifiedRequest;
-import com.netease.cloud.model.HotSwapResponse;
+import com.netease.cloud.core.model.BatchModifiedClassRequest;
+import com.netease.cloud.core.model.HotSwapResponse;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -24,14 +24,14 @@ public interface IHotDeployService extends Remote {
      */
     HotSwapResponse uploadResourceFile(String path, String content) throws RemoteException;
 
-
     /**
      * 批量热更新修改的java
+     * 批量热更新不支持前置与后置处理
      *
      * @param requestList
      * @return
      * @throws RemoteException
      */
-    HotSwapResponse batchHotswapModifiedJava(List<BatchModifiedRequest> requestList) throws RemoteException;
+    HotSwapResponse batchHotswapModifiedJava(List<BatchModifiedClassRequest> requestList) throws RemoteException;
 
 }

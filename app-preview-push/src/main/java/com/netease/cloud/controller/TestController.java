@@ -21,4 +21,9 @@ public class TestController {
         return "hello world";
     }
 
+    @RequestMapping("/hello1")
+    public String hello1() {
+        return name;
+    }
+
 }

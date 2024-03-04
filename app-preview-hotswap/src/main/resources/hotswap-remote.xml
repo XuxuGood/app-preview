@@ -2,5 +2,5 @@
 
 <netease>
     <!-- 远程端口 -->
-    <remote_port>2024</remote_port>
+    <remote_port>8090</remote_port>
 </netease>

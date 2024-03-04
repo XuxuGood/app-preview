@@ -6,7 +6,7 @@
 
     <groupId>com.netease.cloud</groupId>
     <artifactId>app-preview</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
         <module>app-preview-push</module>
