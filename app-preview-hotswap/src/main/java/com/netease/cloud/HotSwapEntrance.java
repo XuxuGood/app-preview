@@ -29,11 +29,6 @@ public class HotSwapEntrance {
      * @throws Exception 异常
      */
     public static void premain(String args, Instrumentation inst) throws Exception {
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        ClassLoader appClassLoader = ClassLoader.getSystemClassLoader();
-        LOGGER.info("启动当前更新classloader为: {}", contextClassLoader.getClass().getName());
-        LOGGER.info("启动当前系统更新classloader为: {}", appClassLoader.getClass().getName());
-        LOGGER.info("hotswap start...");
         // 解析参数
         parseArgs(args);
         // 加载配置文件
