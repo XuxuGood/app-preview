@@ -5,6 +5,7 @@ import com.netease.cloud.core.model.BatchModifiedClassRequest;
 import com.netease.cloud.core.model.BatchModifiedResourceRequest;
 import com.netease.cloud.core.model.HotSwapResponse;
 import com.netease.cloud.extension.AutoChoose;
+import com.netease.cloud.extension.transform.HotSwapExtManager;
 import com.netease.cloud.extension.util.JsonUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
@@ -41,13 +42,17 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
 
             LOGGER.debug("hotswap request params: {}, to pojo: {}", bodyString, requestResource);
 
-            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            // 获取classloader
+            ClassLoader classLoader = HotSwapExtManager.getInstance().getClassLoader();
+            if (classLoader == null) {
+                classLoader = Thread.currentThread().getContextClassLoader();
+            }
 
             String resourcePath = requestResource.getPath();
             byte[] resourceBytes = requestResource.getContent().getBytes();
 
             // 前置处理
-            autoChoose.preHandle(contextClassLoader, resourcePath, resourceBytes);
+            autoChoose.preHandle(classLoader, resourcePath, resourceBytes);
 
             // 将content内容写进path文件中
             try (FileOutputStream fos = new FileOutputStream(resourcePath)) {
@@ -62,7 +67,7 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
             }
 
             // 后置处理
-            autoChoose.afterHandle(contextClassLoader, null, resourcePath, resourceBytes);
+            autoChoose.afterHandle(classLoader, null, resourcePath, resourceBytes);
 
             HotSwapResponse successResponse = HotSwapResponse.success("resource updated successfully");
             HttpServerResponse response = routingContext.response();
