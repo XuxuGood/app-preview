@@ -21,7 +21,7 @@ public class HotSwapCall {
 
     public static void main(String[] args) throws IOException {
         // 热更新配置文件
-//        hotswapResource();
+        hotswapResource();
         // 热更新类
         hotswapClass();
     }
@@ -51,8 +51,8 @@ public class HotSwapCall {
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(requestList), mediaType);
 
         Request request = new Request.Builder()
-                .url("http://localhost:8090/app-preview/hotswap/class")
-//                .url("http://152.136.181.95:8012/app-preview/hotswap/class")
+//                .url("http://localhost:8090/app-preview/hotswap/class")
+                .url("http://152.136.181.95:8012/app-preview/hotswap/class")
                 .post(requestBody)
                 .build();
         Call call = client.newCall(request);

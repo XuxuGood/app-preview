@@ -8,7 +8,7 @@ package com.netease.cloud.controller;
 public class Test2 {
 
     public static String test(){
-        return "sssss";
+        return "sssssasdasd";
     }
 
 }

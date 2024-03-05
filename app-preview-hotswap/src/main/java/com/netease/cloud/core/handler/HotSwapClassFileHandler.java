@@ -45,7 +45,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             Type listType = TypeToken.getParameterized(List.class, BatchModifiedClassRequest.class).getType();
             List<BatchModifiedClassRequest> requestList = JsonUtils.parse(bodyString, listType);
 
-            LOGGER.info("hotswap request params: {}, to pojo: {}", bodyString, requestList);
+            LOGGER.debug("hotswap request params: {}, to pojo: {}", bodyString, requestList);
 
             // 获取classloader
             ClassLoader classLoader = HotSwapExtManager.getInstance().getClassLoader();
