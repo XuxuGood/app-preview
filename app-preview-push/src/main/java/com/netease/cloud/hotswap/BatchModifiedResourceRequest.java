@@ -1,4 +1,4 @@
-package com.netease.cloud.model;
+package com.netease.cloud.hotswap;
 
 /**
  * @Author xiaoxuxuy

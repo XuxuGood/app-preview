@@ -13,7 +13,7 @@ import org.hotswap.agent.javassist.*;
 public class TransformDemo {
 
     /**
-     * 当 com.liubs.hotseconds.extension.transform.demo.Boy类初始化的时候触发这个函数调用，增加字段int age;
+     * 当 com.netease.cloud.extension.transform.demo.Boy类初始化的时候触发这个函数调用，增加字段int age;
      * @param ctClass
      * @param classPool
      * @throws NotFoundException

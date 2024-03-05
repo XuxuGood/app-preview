@@ -15,7 +15,7 @@ import org.hotswap.agent.logging.AgentLogger;
  * @date 2023/7/9 8:22 AM
  **/
 
-@ClassTransform
+//@ClassTransform
 public class MyBatisClassPathMapperScannerPatch {
     private static AgentLogger logger = AgentLogger.getLogger(MyBatisClassPathMapperScannerPatch.class);
 
@@ -28,7 +28,7 @@ public class MyBatisClassPathMapperScannerPatch {
         try{
             CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] {
                     classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry") });
-            constructor.insertAfter("{com.liubs.hotseconds.extension.transform.mybatis.MyBatisSpringBeanDefinition.loadScanner(this);}");
+            constructor.insertAfter("{com.netease.cloud.extension.transform.mybatis.MyBatisSpringBeanDefinition.loadScanner(this);}");
         }catch (Throwable e) {
             logger.error("patchMyBatisClassPathMapperScanner err",e);
         }
