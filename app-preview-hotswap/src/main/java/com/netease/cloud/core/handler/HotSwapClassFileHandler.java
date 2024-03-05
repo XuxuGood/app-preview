@@ -4,7 +4,6 @@ import com.google.gson.reflect.TypeToken;
 import com.netease.cloud.core.model.BatchModifiedClassRequest;
 import com.netease.cloud.core.model.HotSwapResponse;
 import com.netease.cloud.extension.AutoChoose;
-import com.netease.cloud.extension.manager.AllExtensionsManager;
 import com.netease.cloud.extension.transform.HotSwapExtManager;
 import com.netease.cloud.extension.util.JsonUtils;
 import io.vertx.core.Handler;
@@ -18,9 +17,6 @@ import org.hotswap.agent.logging.AgentLogger;
 import java.io.*;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
