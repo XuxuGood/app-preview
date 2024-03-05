@@ -13,8 +13,13 @@ import org.hotswap.agent.config.PluginManager;
 import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 
-import java.io.IOException;
+import java.io.*;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +35,11 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
 
     private final AutoChoose autoChoose;
 
-    public HotSwapClassFileHandler() {
+    private final Instrumentation instrumentation;
+
+    public HotSwapClassFileHandler(Instrumentation instrumentation) {
         autoChoose = new AutoChoose();
+        this.instrumentation = instrumentation;
     }
 
     @Override
@@ -45,29 +53,43 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             LOGGER.info("hotswap request params: {}, to pojo: {}", bodyString, requestList);
 
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            ClassLoader appClassLoader = ClassLoader.getSystemClassLoader();
-            LOGGER.info("当前更新classloader为: {}", contextClassLoader.getClass().getName());
-            LOGGER.info("当前系统更新classloader为: {}", appClassLoader.getClass().getName());
 
             Map<Class<?>, byte[]> reloadMap = new LinkedHashMap<>();
+            Map<Class<?>, byte[]> afterHandlerMap = new LinkedHashMap<>();
 
             try {
                 requestList.forEach(request -> {
-                    try {
-                        String className = request.getClassName();
-                        Class<?> aClass = Class.forName(className);
+                    String className = request.getClassName();
+                    byte[] classBytes = request.getBytes();
 
-                        // 热更新前置处理
-                        autoChoose.preHandle(contextClassLoader, className, request.getBytes());
+                    // 热更新前置处理
+                    autoChoose.preHandle(contextClassLoader, className, classBytes);
 
-                        // need to recreate class pool on each swap to avoid stale class definition
-                        ClassPool classPool = new ClassPool();
-                        classPool.appendClassPath(new LoaderClassPath(aClass.getClassLoader()));
+                    // need to recreate class pool on each swap to avoid stale class definition
+                    ClassPool classPool = new ClassPool();
+                    classPool.appendClassPath(new LoaderClassPath(getClass().getClassLoader()));
 
-                        CtClass ctClass = classPool.getAndRename(aClass.getName(), aClass.getName());
-                        reloadMap.put(aClass, ctClass.toBytecode());
-                    } catch (ClassNotFoundException | NotFoundException | IOException | CannotCompileException e) {
-                        throw new RuntimeException(e);
+                    Class<?>[] loadedClasses = instrumentation.getAllLoadedClasses();
+
+                    // 判断是否已经加载过该类
+                    boolean isLoaded = Arrays.stream(loadedClasses)
+                            .filter(clazz -> clazz.getName().equals(className))
+                            .peek(clazz -> {
+                                reloadMap.put(clazz, classBytes);
+                                afterHandlerMap.put(clazz, classBytes);
+                            })
+                            .findFirst()
+                            .isPresent();
+
+                    if (!isLoaded) {
+                        try {
+                            CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
+                            Class<?> newClass = newCtClass.toClass();
+                            reloadMap.put(newClass, classBytes);
+                            afterHandlerMap.put(newClass, classBytes);
+                        } catch (CannotCompileException | IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 });
             } catch (Exception e) {
@@ -82,7 +104,9 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             PluginManager.getInstance().hotswap(reloadMap);
 
             // 热更新后置处理
-            reloadMap.forEach((aClass, bytes) -> autoChoose.afterHandle(contextClassLoader, aClass, aClass.getName(), bytes));
+            afterHandlerMap.forEach((aClass, bytes) -> {
+                autoChoose.afterHandle(contextClassLoader, aClass, aClass.getName(), bytes);
+            });
 
             HotSwapResponse success = HotSwapResponse.success("success, updates(include inner classes)=" + requestList.size());
 

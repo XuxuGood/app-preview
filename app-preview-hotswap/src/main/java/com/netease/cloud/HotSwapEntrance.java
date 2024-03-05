@@ -1,8 +1,6 @@
 package com.netease.cloud;
 
 import com.netease.cloud.core.config.HotSwapConfiguration;
-import com.netease.cloud.core.service.IHotDeployService;
-import com.netease.cloud.core.service.impl.IHotDeployServiceImpl;
 import com.netease.cloud.extension.transform.HotSwapExtManager;
 import io.vertx.core.Vertx;
 import org.hotswap.agent.HotswapAgent;
@@ -10,9 +8,9 @@ import org.hotswap.agent.logging.AgentLogger;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.util.jar.JarFile;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Objects;
 
 /**
  * @Author xiaoxuxuy
@@ -42,20 +40,7 @@ public class HotSwapEntrance {
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
         // 启动 vertx http 服务
-//        Vertx.vertx().deployVerticle(new VertxApplication());
-        // 注册热部署远程调用服务
-        registryHotDeployService();
-    }
-
-    /**
-     * 注册热部署远程调用服务
-     */
-    private static void registryHotDeployService() throws Exception {
-        // 创建远程对象实例
-        IHotDeployService hotDeployService = new IHotDeployServiceImpl();
-        // 导出远程对象，绑定到指定端口
-        Registry registry = LocateRegistry.createRegistry(HotSwapConfiguration.getInstance().getRemotePort());
-        registry.rebind("HotDeployService", hotDeployService);
+        Vertx.vertx().deployVerticle(new VertxApplication(inst));
     }
 
     /**

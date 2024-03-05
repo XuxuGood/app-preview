@@ -9,6 +9,8 @@ import io.vertx.ext.web.Router;
 import org.hotswap.agent.HotswapAgent;
 import org.hotswap.agent.logging.AgentLogger;
 
+import java.lang.instrument.Instrumentation;
+
 /**
  * Vertx Web 启动类
  *
@@ -21,6 +23,12 @@ public class VertxApplication extends AbstractVerticle {
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotswapAgent.class);
 
     private static final int defaultPort = 8090;
+
+    private final Instrumentation inst;
+
+    public VertxApplication(Instrumentation inst) {
+        this.inst = inst;
+    }
 
     /**
      * 启动vertx web
@@ -36,7 +44,7 @@ public class VertxApplication extends AbstractVerticle {
 
         HttpServer httpServer = vertx.createHttpServer();
         Router router = Router.router(vertx);
-        router.post("/app-preview/hotswap/class").handler(new HotSwapClassFileHandler());
+        router.post("/app-preview/hotswap/class").handler(new HotSwapClassFileHandler(inst));
         router.post("/app-preview/hotswap/resource").handler(new HotSwapResourceFileHandler());
         httpServer.requestHandler(router)
                 .listen(remotePort)

@@ -1,20 +1,13 @@
 package com.netease.cloud.hotswap;
 
-import com.netease.cloud.core.model.HotSwapResponse;
-import com.netease.cloud.core.service.IHotDeployService;
 import com.netease.cloud.model.BatchModifiedClassRequest;
 import com.netease.cloud.model.BatchModifiedResourceRequest;
 import com.netease.cloud.utils.JsonUtils;
 import okhttp3.*;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.rmi.NotBoundException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,32 +19,11 @@ import java.util.Objects;
  */
 public class HotSwapCall {
 
-    public static void main(String[] args) throws IOException, NotBoundException {
+    public static void main(String[] args) throws IOException {
         // 热更新配置文件
 //        hotswapResource();
         // 热更新类
-//        hotswapClass();
-
-        Registry registry = LocateRegistry.getRegistry("localhost",
-                8090, (host, port) -> {
-                    Socket socket = new Socket();
-                    socket.connect(new InetSocketAddress(host, port), 3000);
-                    return socket;
-                });
-        IHotDeployService hotDeploy = (IHotDeployService) registry.lookup("HotDeployService");
-
-        // 热更新类
-        List<com.netease.cloud.core.model.BatchModifiedClassRequest> requestList = new ArrayList<>();
-
-        com.netease.cloud.core.model.BatchModifiedClassRequest modifiedRequest = new com.netease.cloud.core.model.BatchModifiedClassRequest();
-        //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.controller.TestController");
-        //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/TestController.class")));
-        requestList.add(modifiedRequest);
-
-        HotSwapResponse hotSwapResponse = hotDeploy.batchHotswapModifiedJava(requestList);
-        System.out.println("hotswap response:" + hotSwapResponse);
+        hotswapClass();
     }
 
     private static void hotswapClass() throws IOException {
@@ -66,6 +38,13 @@ public class HotSwapCall {
         modifiedRequest.setClassName("com.netease.cloud.controller.TestController");
         //热更新的字节码
         modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/TestController.class")));
+        requestList.add(modifiedRequest);
+
+        modifiedRequest = new BatchModifiedClassRequest();
+        //热更新类名
+        modifiedRequest.setClassName("com.netease.cloud.controller.Test1");
+        //热更新的字节码
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/Test1.class")));
         requestList.add(modifiedRequest);
 
         MediaType mediaType = MediaType.parse("application/json");
@@ -94,8 +73,8 @@ public class HotSwapCall {
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(resourceRequest), mediaType);
 
         Request request = new Request.Builder()
-                .url("http://localhost:8090/app-preview/hotswap/resource")
-//                .url("http://152.136.181.95:8012/app-preview/hotswap/resource")
+//                .url("http://localhost:8090/app-preview/hotswap/resource")
+                .url("http://152.136.181.95:8012/app-preview/hotswap/resource")
                 .post(requestBody)
                 .build();
         Call call = client.newCall(request);
