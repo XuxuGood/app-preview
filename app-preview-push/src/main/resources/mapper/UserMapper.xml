@@ -16,7 +16,7 @@
         select * from user where id = #{id};
     </select>
 
-    <select id="getUserById2" resultMap="BaseResultMap">
+    <select id="getUserById3" resultMap="BaseResultMap">
         select * from user where id = #{id};
     </select>
 

@@ -33,9 +33,9 @@ public class UserController {
         return userMapper.getUserById(id);
     }
 
-    @GetMapping("/getUserById2/{id}")
-    public User getUserById1(@PathVariable int id) {
-        return userMapper.getUserById2(id);
+    @GetMapping("/getUserById3/{id}")
+    public User getUserById3(@PathVariable int id) {
+        return userMapper.getUserById3(id);
     }
 
     @PostMapping("/addUser")

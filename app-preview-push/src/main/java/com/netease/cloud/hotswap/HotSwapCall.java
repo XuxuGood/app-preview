@@ -63,8 +63,8 @@ public class HotSwapCall {
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(requestList), mediaType);
 
         Request request = new Request.Builder()
-                .url("http://localhost:8090/app-preview/hotswap/class")
-//                .url("http://152.136.181.95:8012/app-preview/hotswap/class")
+//                .url("http://localhost:8090/app-preview/hotswap/class")
+                .url("http://152.136.181.95:8012/app-preview/hotswap/class")
                 .post(requestBody)
                 .build();
         Call call = client.newCall(request);
@@ -82,15 +82,15 @@ public class HotSwapCall {
 //        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/application.properties"))));
 
         BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
-        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/UserMapper.xml");
+        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/UserMapper.xml");
         resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/UserMapper.xml"))));
 
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(resourceRequest), mediaType);
 
         Request request = new Request.Builder()
-                .url("http://localhost:8090/app-preview/hotswap/resource")
-//                .url("http://152.136.181.95:8012/app-preview/hotswap/resource")
+//                .url("http://localhost:8090/app-preview/hotswap/resource")
+                .url("http://152.136.181.95:8012/app-preview/hotswap/resource")
                 .post(requestBody)
                 .build();
         Call call = client.newCall(request);
