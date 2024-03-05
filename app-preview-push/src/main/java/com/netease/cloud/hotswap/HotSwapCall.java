@@ -51,8 +51,8 @@ public class HotSwapCall {
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(requestList), mediaType);
 
         Request request = new Request.Builder()
-//                .url("http://localhost:8090/app-preview/hotswap/class")
-                .url("http://152.136.181.95:8012/app-preview/hotswap/class")
+                .url("http://localhost:8090/app-preview/hotswap/class")
+//                .url("http://152.136.181.95:8012/app-preview/hotswap/class")
                 .post(requestBody)
                 .build();
         Call call = client.newCall(request);

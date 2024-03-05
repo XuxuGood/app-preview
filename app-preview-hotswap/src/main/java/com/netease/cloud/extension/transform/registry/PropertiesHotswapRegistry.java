@@ -20,9 +20,6 @@ public class PropertiesHotswapRegistry {
     @OnClassLoad(className = "org.springframework.boot.SpringApplication")
     public static void registryOnClass() {
         AllExtensionsManager.getInstance().addHotExtHandler(new PropertiesHotswap());
-        // 注册SpringBoot的ClassLoader
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        HotSwapExtManager.getInstance().setClassLoader(contextClassLoader);
     }
 
 }
