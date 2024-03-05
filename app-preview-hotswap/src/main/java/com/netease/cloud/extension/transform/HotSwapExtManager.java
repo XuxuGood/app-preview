@@ -21,7 +21,7 @@ public class HotSwapExtManager {
 
     private static final AgentLogger LOGGER = AgentLogger.getLogger(PluginManager.class);
 
-    private static HotSwapExtManager INSTANCE = new HotSwapExtManager();
+    private static final HotSwapExtManager INSTANCE = new HotSwapExtManager();
 
     public static HotSwapExtManager getInstance() {
         return INSTANCE;
@@ -29,7 +29,9 @@ public class HotSwapExtManager {
 
     protected HotSwapExtTransformer hotSwapExtTransformer;
 
-    private ClassPathAnnotationScanner annotationScanner;
+    protected ClassLoader classLoader;
+
+    private final ClassPathAnnotationScanner annotationScanner;
 
     protected AnnotationProcessor annotationProcessor;
 
@@ -71,6 +73,14 @@ public class HotSwapExtManager {
 
     public HotSwapExtTransformer getHotswapExtTransformer() {
         return hotSwapExtTransformer;
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
 }

@@ -26,8 +26,6 @@ public class HotSwapExtTransformer implements ClassFileTransformer {
         List<ClassFileTransformer> transformerList = new LinkedList<>();
     }
 
-    protected Map<ClassLoader, Boolean> seenClassLoaders = new WeakHashMap<>();
-
     /**
      * Exclude these classLoaders from initialization (system classloaders). Note that
      */
@@ -35,15 +33,6 @@ public class HotSwapExtTransformer implements ClassFileTransformer {
             "jdk.internal.reflect.DelegatingClassLoader",
             "sun.reflect.DelegatingClassLoader"
     ));
-
-    // TODO : check if felix class loaders could be skipped
-    private static final Set<String> excludedClassLoaders = new HashSet<>(Arrays.asList(
-            "org.apache.felix.framework.BundleWiringImpl$BundleClassLoader", // delegating ClassLoader in GlassFish
-            "org.apache.felix.framework.BundleWiringImpl$BundleClassLoaderJava5" // delegating ClassLoader in_GlassFish
-    ));
-
-    private List<Pattern> includedClassLoaderPatterns;
-    private List<Pattern> excludedClassLoaderPatterns;
 
     protected Map<String, HotSwapExtTransformer.RegisteredTransformersRecord> otherTransformers = new LinkedHashMap<>();
 
@@ -79,7 +68,7 @@ public class HotSwapExtTransformer implements ClassFileTransformer {
             LOGGER.error("Error transforming class '" + className + "'.", t);
         }
 
-        if(toApply.isEmpty() && extMethodTransformers.isEmpty()) {
+        if (toApply.isEmpty() && extMethodTransformers.isEmpty()) {
             LOGGER.trace("No transformers define for {} ", className);
             return classfileBuffer;
         }
@@ -87,12 +76,12 @@ public class HotSwapExtTransformer implements ClassFileTransformer {
         try {
             byte[] result = classfileBuffer;
 
-            for(ClassFileTransformer transformer: extMethodTransformers) {
+            for (ClassFileTransformer transformer : extMethodTransformers) {
                 LOGGER.trace("Transforming class '" + className + "' with transformer '" + transformer + "' " + "@ClassLoader" + classLoader + ".");
                 result = transformer.transform(classLoader, className, redefiningClass, protectionDomain, result);
             }
 
-            for(ClassFileTransformer transformer: toApply) {
+            for (ClassFileTransformer transformer : toApply) {
                 LOGGER.trace("Transforming class '" + className + "' with transformer '" + transformer + "' " + "@ClassLoader" + classLoader + ".");
                 result = transformer.transform(classLoader, className, redefiningClass, protectionDomain, result);
             }

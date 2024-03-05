@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 所有的扩展包注册管理器
+ *
  * @author Liubsyy
  */
 public class AllExtensionsManager {
@@ -28,21 +29,21 @@ public class AllExtensionsManager {
     }
 
     public void addHotExtHandler(IHotExtHandler hotExtHandler) {
-        if(!allHandlers.containsKey(hotExtHandler.getClass())) {
-            allHandlers.put(hotExtHandler.getClass(),hotExtHandler);
-            logger.info("Register handler {}",hotExtHandler);
+        if (!allHandlers.containsKey(hotExtHandler.getClass())) {
+            allHandlers.put(hotExtHandler.getClass(), hotExtHandler);
+            logger.info("Register handler {}", hotExtHandler);
         }
     }
 
     public IHotExtHandler removeHotExtHandler(Class<?> classz) {
         IHotExtHandler oldHandler = allHandlers.remove(classz);
-        if(null != oldHandler) {
-            logger.info("Remove handler {}",oldHandler);
+        if (null != oldHandler) {
+            logger.info("Remove handler {}", oldHandler);
         }
         return oldHandler;
     }
 
-    public Collection<IHotExtHandler> getAllHandlers(){
+    public Collection<IHotExtHandler> getAllHandlers() {
         return allHandlers.values();
     }
 
