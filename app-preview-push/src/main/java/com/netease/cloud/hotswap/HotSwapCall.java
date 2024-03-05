@@ -42,9 +42,9 @@ public class HotSwapCall {
 
         modifiedRequest = new BatchModifiedClassRequest();
         //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.controller.Test2");
+        modifiedRequest.setClassName("com.netease.cloud.controller.Test");
         //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/Test2.class")));
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/Test.class")));
         requestList.add(modifiedRequest);
 
         MediaType mediaType = MediaType.parse("application/json");
