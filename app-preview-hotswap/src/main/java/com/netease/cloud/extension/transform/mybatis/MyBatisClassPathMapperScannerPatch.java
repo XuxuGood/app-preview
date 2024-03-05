@@ -15,7 +15,7 @@ import org.hotswap.agent.logging.AgentLogger;
  * @date 2023/7/9 8:22 AM
  **/
 
-//@ClassTransform
+@ClassTransform
 public class MyBatisClassPathMapperScannerPatch {
     private static AgentLogger logger = AgentLogger.getLogger(MyBatisClassPathMapperScannerPatch.class);
 
