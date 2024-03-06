@@ -35,7 +35,17 @@ public class UserController {
 
     @GetMapping("/getUserById3/{id}")
     public User getUserById3(@PathVariable int id) {
-        return userMapper.getUserById3(id);
+        return userMapper.getUserById5(2);
+    }
+
+    @GetMapping("/getUserById4/{id}")
+    public User getUserById4(@PathVariable int id) {
+        return userMapper.getUserById4(id);
+    }
+
+    @GetMapping("/getUserById5/{id}")
+    public User getUserById5(@PathVariable Integer id) {
+        return new User(id, "lili", UUID.randomUUID().toString());
     }
 
     @PostMapping("/addUser")

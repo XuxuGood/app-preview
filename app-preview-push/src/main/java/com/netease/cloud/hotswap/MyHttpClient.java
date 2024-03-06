@@ -18,8 +18,8 @@ public class MyHttpClient {
     public static OkHttpClient getClient() {
         if (client == null) {
             client = new OkHttpClient.Builder()
-                    .connectTimeout(1, TimeUnit.SECONDS)
-                    .callTimeout(1, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .callTimeout(10, TimeUnit.SECONDS)
                     .build();
         }
         return client;

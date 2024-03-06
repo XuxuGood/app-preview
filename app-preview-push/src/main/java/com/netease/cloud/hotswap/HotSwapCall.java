@@ -18,10 +18,10 @@ import java.util.Objects;
 public class HotSwapCall {
 
     public static void main(String[] args) throws IOException {
-        // 热更新配置文件
-        hotswapResource();
         // 热更新类
         hotswapClass();
+        // 热更新配置文件
+        hotswapResource();
     }
 
     private static void hotswapClass() throws IOException {
@@ -47,16 +47,16 @@ public class HotSwapCall {
 
         modifiedRequest = new BatchModifiedClassRequest();
         //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.controller.UserController");
+        modifiedRequest.setClassName("com.netease.cloud.dao.UserMapper");
         //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/UserController.class")));
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/dao/UserMapper.class")));
         requestList.add(modifiedRequest);
 
         modifiedRequest = new BatchModifiedClassRequest();
         //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.dao.UserMapper");
+        modifiedRequest.setClassName("com.netease.cloud.controller.UserController");
         //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/dao/UserMapper.class")));
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/UserController.class")));
         requestList.add(modifiedRequest);
 
         MediaType mediaType = MediaType.parse("application/json");
@@ -83,6 +83,7 @@ public class HotSwapCall {
 
         BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
         resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/UserMapper.xml");
+//        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/UserMapper.xml");
         resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/UserMapper.xml"))));
 
         MediaType mediaType = MediaType.parse("application/json");
