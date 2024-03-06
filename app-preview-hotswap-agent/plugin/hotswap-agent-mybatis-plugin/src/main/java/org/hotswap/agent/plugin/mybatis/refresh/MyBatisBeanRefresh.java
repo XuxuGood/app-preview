@@ -1,6 +1,7 @@
-package org.hotswap.agent.plugin.mybatis.transformers;
+package org.hotswap.agent.plugin.mybatis.refresh;
 
 import org.apache.ibatis.session.Configuration;
+import org.hotswap.agent.extension.IHotExtHandler;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import org.hotswap.agent.util.ReflectUtil;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
  * @author Liubsyy
  * @date 2023/7/9 9:22 PM
  */
-public class MyBatisBeanRefresh  {
+public class MyBatisBeanRefresh implements IHotExtHandler {
     private static AgentLogger logger = AgentLogger.getLogger(MyBatisBeanRefresh.class);
 
     public void afterHandle(ClassLoader classLoader, Class<?> classz, String path, byte[] bytes) {
@@ -47,7 +48,7 @@ public class MyBatisBeanRefresh  {
 
             //这里用类字符串判断是否mybatis plus，不引用mybatis plus的类，避免应用程序没有用mybatis plus而报错
             if (configuration.getClass().getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
-//                MyBatisPlusMapperUpdate.refreshMapper(configuration, classz);
+                MyBatisPlusMapperUpdate.refreshMapper(configuration, classz);
                 //return;
             }
 

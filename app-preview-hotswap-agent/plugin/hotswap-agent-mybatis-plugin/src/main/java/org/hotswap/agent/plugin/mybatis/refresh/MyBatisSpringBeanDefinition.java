@@ -1,4 +1,4 @@
-package org.hotswap.agent.plugin.mybatis.transformers;
+package org.hotswap.agent.plugin.mybatis.refresh;
 
 import org.hotswap.agent.logging.AgentLogger;
 import org.mybatis.spring.mapper.ClassPathMapperScanner;

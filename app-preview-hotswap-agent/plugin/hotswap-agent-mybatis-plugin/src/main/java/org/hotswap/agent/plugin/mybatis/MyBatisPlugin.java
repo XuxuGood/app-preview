@@ -87,7 +87,7 @@ public class MyBatisPlugin {
         try{
             CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] {
                     classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry") });
-            constructor.insertAfter("{org.hotswap.agent.plugin.mybatis.transformers.MyBatisSpringBeanDefinition.loadScanner(this);}");
+            constructor.insertAfter("{org.hotswap.agent.plugin.mybatis.refresh.MyBatisSpringBeanDefinition.loadScanner(this);}");
         }catch (Throwable e) {
             LOGGER.error("patchMyBatisClassPathMapperScanner err",e);
         }
