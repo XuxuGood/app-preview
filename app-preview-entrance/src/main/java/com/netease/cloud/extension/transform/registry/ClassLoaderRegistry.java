@@ -13,7 +13,7 @@ import org.hotswap.agent.logging.AgentLogger;
 @ClassTransform
 public class ClassLoaderRegistry {
 
-    private static final AgentLogger LOGGER = AgentLogger.getLogger(VelocityRegistry.class);
+    private static final AgentLogger LOGGER = AgentLogger.getLogger(ClassLoaderRegistry.class);
 
     @OnClassLoad(className = "org.springframework.boot.SpringApplication")
     public static void registrySpringBootClassLoader() {

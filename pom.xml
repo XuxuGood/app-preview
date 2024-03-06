@@ -10,6 +10,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>app-preview-push</module>
-        <module>app-preview-hotswap</module>
+        <module>app-preview-entrance</module>
     </modules>
 </project>

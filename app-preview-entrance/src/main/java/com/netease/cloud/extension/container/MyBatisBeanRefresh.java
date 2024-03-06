@@ -8,13 +8,17 @@ import org.apache.ibatis.session.Configuration;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import org.hotswap.agent.util.ReflectionHelper;
+import org.mybatis.spring.mapper.ClassPathMapperScanner;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -27,6 +31,13 @@ import java.util.ArrayList;
 public class MyBatisBeanRefresh implements IHotExtHandler {
     private static AgentLogger logger = AgentLogger.getLogger(MyBatisClassPathMapperScannerPatch.class);
 
+    private final ClassPathMapperScanner mapperScanner;
+
+    public MyBatisBeanRefresh(ClassPathMapperScanner mapperScanner) {
+        logger.info("MyBatisBeanRefresh init");
+        this.mapperScanner = mapperScanner;
+    }
+
     @Override
     public void afterHandle(ClassLoader classLoader, Class<?> classz, String path, byte[] bytes) {
         if (classz == null || !classz.isInterface()) {
@@ -35,7 +46,7 @@ public class MyBatisBeanRefresh implements IHotExtHandler {
         if (classz.getAnnotation(org.apache.ibatis.annotations.Mapper.class) == null) {
             return;
         }
-        if (null == MyBatisSpringBeanDefinition.getMapperScanner()) {
+        if (null == this.mapperScanner) {
             return;
         }
         try {
@@ -56,26 +67,48 @@ public class MyBatisBeanRefresh implements IHotExtHandler {
             }
 
 
-            ClassPathBeanDefinitionScannerAgent scannerAgent = ClassPathBeanDefinitionScannerAgent.getInstance(MyBatisSpringBeanDefinition.getMapperScanner());
+            ClassPathBeanDefinitionScannerAgent scannerAgent = ClassPathBeanDefinitionScannerAgent.getInstance(mapperScanner);
             BeanDefinition beanDefinition = scannerAgent.resolveBeanDefinition(classLoader, bytes);
             if (beanDefinition != null) {
                 scannerAgent.defineBean(beanDefinition);
             }
 
             //bean name
-            BeanNameGenerator beanNameGenerator = (BeanNameGenerator) ReflectionHelper.get(MyBatisSpringBeanDefinition.getMapperScanner(), "beanNameGenerator");
+            BeanNameGenerator beanNameGenerator = (BeanNameGenerator) ReflectionHelper.get(mapperScanner, "beanNameGenerator");
             BeanDefinitionRegistry registry = ReflectUtil.getField(scannerAgent, "registry");
             String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
 
             //beanDefinitionHolder
             BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDefinition, beanName);
 
-            MyBatisSpringBeanDefinition.mybatisBeanDefinition(definitionHolder);
-
+            mybatisBeanDefinition(definitionHolder);
         } catch (Exception e) {
             logger.error("Refresh Mybatis Bean err", e);
         }
     }
 
+
+    /**
+     * 这块是mybatis接口的生成代理类的原理
+     *
+     * @param holder
+     */
+    public void mybatisBeanDefinition(BeanDefinitionHolder holder) {
+        if (null == mapperScanner) {
+            return;
+        }
+        try {
+            Set<BeanDefinitionHolder> holders = new HashSet<>();
+            holders.add(holder);
+            Method method = Class.forName("org.mybatis.spring.mapper.ClassPathMapperScanner")
+                    .getDeclaredMethod("processBeanDefinitions", Set.class);
+            boolean isAccess = method.isAccessible();
+            method.setAccessible(true);
+            method.invoke(mapperScanner, holders);
+            method.setAccessible(isAccess);
+        } catch (Exception e) {
+            logger.error("freshMyBatis err", e);
+        }
+    }
 
 }
