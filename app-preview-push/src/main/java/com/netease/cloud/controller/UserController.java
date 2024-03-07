@@ -21,11 +21,7 @@ public class UserController {
 
     @GetMapping("/allUserList")
     public List<User> allUserList() {
-        List<User> users = userMapper.allUserList();
-        for (User user : users) {
-            System.out.println(user);
-        }
-        return users;
+        return userMapper.allUserList();
     }
 
     @GetMapping("/getUserById/{id}")

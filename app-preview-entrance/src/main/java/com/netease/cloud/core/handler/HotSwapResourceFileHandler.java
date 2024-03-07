@@ -60,6 +60,7 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
                 HotSwapResponse errorResponse = HotSwapResponse.of("Exception writing to file", 400, e.getMessage());
                 HttpServerResponse response = routingContext.response();
                 response.end(JsonObject.mapFrom(errorResponse).toBuffer());
+                return;
             }
 
             // 后置处理

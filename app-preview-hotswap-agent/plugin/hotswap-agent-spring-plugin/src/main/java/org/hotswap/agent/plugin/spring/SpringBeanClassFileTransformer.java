@@ -42,11 +42,17 @@ public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) throws IllegalClassFormatException {
         final SpringChangesAnalyzer analyzer = new SpringChangesAnalyzer(appClassLoader);
+        try {
+            Class<?> aClass = loader.loadClass("com.netease.cloud.dao.OrderMapper");
+            System.out.println("aClass = " + aClass);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         if (classBeingRedefined != null) {
-            if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
+//            if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
                 scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(),
                         basePackage, className, classfileBuffer, scheduler));
-            }
+//            }
         }
         return classfileBuffer;
     }

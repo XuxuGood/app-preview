@@ -22,6 +22,7 @@ import org.hotswap.agent.annotation.FileEvent;
 import org.hotswap.agent.command.Command;
 import org.hotswap.agent.command.MergeableCommand;
 import org.hotswap.agent.command.Scheduler;
+import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.spring.reload.SpringChangedReloadCommand;
 import org.hotswap.agent.plugin.spring.reload.SpringReloadConfig;
@@ -36,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Do refresh Spring class (scanned by classpath scanner) based on URI or byte[] definition.
- *
+ * <p>
  * This commands merges events of watcher.event(CREATE) and transformer hotswap reload to a single refresh command.
  */
 public class ClassPathBeanRefreshCommand extends MergeableCommand {
@@ -91,10 +92,14 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
 
             LOGGER.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
 
+            if (AllExtensionsManager.getInstance().getClassLoader() != null) {
+                appClassLoader = AllExtensionsManager.getInstance().getClassLoader();
+            }
+
             Class<?> clazz = Class.forName("org.hotswap.agent.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
-            Method method  = clazz.getDeclaredMethod(
-                    "refreshClassAndCheckReload", new Class[] {ClassLoader.class, String.class, String.class, byte[].class});
-            method.invoke(null, appClassLoader , basePackage, basePackage, classDefinition);
+            Method method = clazz.getDeclaredMethod(
+                    "refreshClassAndCheckReload", new Class[]{ClassLoader.class, String.class, String.class, byte[].class});
+            method.invoke(null, appClassLoader, basePackage, basePackage, classDefinition);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);
         } catch (InvocationTargetException e) {

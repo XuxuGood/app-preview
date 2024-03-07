@@ -7,6 +7,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import org.apache.ibatis.annotations.Mapper;
 import org.hotswap.agent.config.PluginManager;
 import org.hotswap.agent.extension.AutoChoose;
 import org.hotswap.agent.extension.manager.AllExtensionsManager;
@@ -91,10 +92,6 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             // 热更新前置处理
             autoChoose.preHandle(classLoader, className, classBytes);
 
-            // need to recreate class pool on each swap to avoid stale class definition
-            ClassPool classPool = new ClassPool();
-            classPool.appendClassPath(new LoaderClassPath(getClass().getClassLoader()));
-
             boolean isLoaded;
 
             // 如果不是SprintBoot的类加载器，需要额外处理
@@ -123,6 +120,16 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             }
 
             if (!isLoaded) {
+                // need to recreate class pool on each swap to avoid stale class definition
+                ClassPool classPool =  new ClassPool() {
+                    @Override
+                    public ClassLoader getClassLoader() {
+                        return classLoader;
+                    }
+                };
+                classPool.appendSystemPath();
+                classPool.appendClassPath(new LoaderClassPath(classLoader));
+
                 CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
                 Class<?> newClass = newCtClass.toClass();
                 reloadMap.put(newClass, classBytes);

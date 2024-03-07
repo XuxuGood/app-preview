@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.netease.cloud.dao.OrderMapper">
+    <resultMap id="BaseResultMap" type="com.netease.cloud.model.Order">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+    </resultMap>
+
+    <select id="allOrderList" resultMap="BaseResultMap">
+        select * from order;
+    </select>
+
+</mapper>

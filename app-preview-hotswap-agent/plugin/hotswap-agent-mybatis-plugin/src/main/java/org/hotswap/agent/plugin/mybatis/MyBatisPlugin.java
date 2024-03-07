@@ -24,14 +24,14 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hotswap.agent.annotation.*;
+import org.hotswap.agent.annotation.FileEvent;
+import org.hotswap.agent.annotation.Init;
+import org.hotswap.agent.annotation.OnResourceFileEvent;
+import org.hotswap.agent.annotation.Plugin;
 import org.hotswap.agent.command.Command;
 import org.hotswap.agent.command.ReflectionCommand;
 import org.hotswap.agent.command.Scheduler;
 import org.hotswap.agent.config.PluginConfiguration;
-import org.hotswap.agent.javassist.ClassPool;
-import org.hotswap.agent.javassist.CtClass;
-import org.hotswap.agent.javassist.CtConstructor;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.mybatis.transformers.MyBatisTransformers;
 
@@ -75,21 +75,6 @@ public class MyBatisPlugin {
     public void registerResourceListeners(URL url) throws URISyntaxException {
         if (configurationMap.containsKey(Paths.get(url.toURI()).toFile().getAbsolutePath())) {
             refresh(500);
-        }
-    }
-
-    /**
-     *  ClassPathMapperScanner 构造函数插桩，获取ClassPathMapperScanner实例
-     */
-    @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.mapper.ClassPathMapperScanner")
-    public static void patchMyBatisClassPathMapperScanner(CtClass ctClass, ClassPool classPool){
-        LOGGER.info("MyBatisBeanRefresh.patchMyBatisClassPathMapperScanner");
-        try{
-            CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] {
-                    classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry") });
-            constructor.insertAfter("{org.hotswap.agent.plugin.mybatis.refresh.MyBatisSpringBeanDefinition.loadScanner(this);}");
-        }catch (Throwable e) {
-            LOGGER.error("patchMyBatisClassPathMapperScanner err",e);
         }
     }
 

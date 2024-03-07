@@ -21,7 +21,7 @@ public class HotSwapCall {
         // 热更新配置文件
         hotswapResource();
         // 热更新类
-        hotswapClass();
+//        hotswapClass();
     }
 
     private static void hotswapClass() throws IOException {
@@ -33,31 +33,38 @@ public class HotSwapCall {
 
         BatchModifiedClassRequest modifiedRequest = new BatchModifiedClassRequest();
         //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.controller.TestController");
+        modifiedRequest.setClassName("com.netease.cloud.model.Order");
         //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/TestController.class")));
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/model/Order.class")));
         requestList.add(modifiedRequest);
 
         modifiedRequest = new BatchModifiedClassRequest();
         //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.controller.Test");
+        modifiedRequest.setClassName("com.netease.cloud.dao.OrderMapper");
         //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/Test.class")));
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/dao/OrderMapper.class")));
         requestList.add(modifiedRequest);
 
         modifiedRequest = new BatchModifiedClassRequest();
         //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.dao.UserMapper");
+        modifiedRequest.setClassName("com.netease.cloud.controller.OrderController");
         //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/dao/UserMapper.class")));
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/OrderController.class")));
         requestList.add(modifiedRequest);
 
-        modifiedRequest = new BatchModifiedClassRequest();
-        //热更新类名
-        modifiedRequest.setClassName("com.netease.cloud.controller.UserController");
-        //热更新的字节码
-        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/UserController.class")));
-        requestList.add(modifiedRequest);
+//        modifiedRequest = new BatchModifiedClassRequest();
+//        //热更新类名
+//        modifiedRequest.setClassName("com.netease.cloud.dao.UserMapper");
+//        //热更新的字节码
+//        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/dao/UserMapper.class")));
+//        requestList.add(modifiedRequest);
+//
+//        modifiedRequest = new BatchModifiedClassRequest();
+//        //热更新类名
+//        modifiedRequest.setClassName("com.netease.cloud.controller.UserController");
+//        //热更新的字节码
+//        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/UserController.class")));
+//        requestList.add(modifiedRequest);
 
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(requestList), mediaType);
@@ -81,10 +88,16 @@ public class HotSwapCall {
 //        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/application.properties");
 //        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/application.properties"))));
 
+//        BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
+//        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/UserMapper.xml");
+////        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/UserMapper.xml");
+//        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/UserMapper.xml"))));
+
         BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
-        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/UserMapper.xml");
-//        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/UserMapper.xml");
-        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/UserMapper.xml"))));
+        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/OrderMapper.xml");
+//        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/OrderMapper.xml");
+        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/OrderMapper.xml"))));
+
 
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(resourceRequest), mediaType);

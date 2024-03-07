@@ -39,8 +39,8 @@ import java.util.Map;
 @Plugin(name = "MyBatis",
         description = "Reload MyBatis configuration after configuration create/change.",
         testedVersions = {"All between 5.3.2"},
-        expectedVersions = {"5.3.2" },
-        supportClass = { MyBatisTransformers.class })
+        expectedVersions = {"5.3.2"},
+        supportClass = {MyBatisTransformers.class})
 public class MyBatisPlugin {
     private static AgentLogger LOGGER = AgentLogger.getLogger(MyBatisPlugin.class);
 
@@ -67,7 +67,7 @@ public class MyBatisPlugin {
         }
     }
 
-    @OnResourceFileEvent(path="/", filter = ".*.xml", events = {FileEvent.MODIFY})
+    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
     public void registerResourceListeners(URL url) {
         if (configurationMap.containsKey(url.getPath())) {
             refresh(500);
@@ -124,17 +124,35 @@ public class MyBatisPlugin {
     }
 
     /**
-     *  ClassPathMapperScanner 构造函数插桩，获取ClassPathMapperScanner实例
+     * ClassPathMapperScanner 构造函数插桩，获取ClassPathMapperScanner实例
      */
     @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.mapper.ClassPathMapperScanner")
-    public static void patchMyBatisClassPathMapperScanner(CtClass ctClass, ClassPool classPool){
+    public static void patchMyBatisClassPathMapperScanner(CtClass ctClass, ClassPool classPool) {
         LOGGER.info("MyBatisBeanRefresh.patchMyBatisClassPathMapperScanner");
-        try{
-            CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] {
-                    classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry") });
+        try {
+            CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{
+                    classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry")});
             constructor.insertAfter("{org.hotswap.agent.plugin.mybatis.refresh.MyBatisSpringBeanDefinition.loadScanner(this);}");
-        }catch (Throwable e) {
-            LOGGER.error("patchMyBatisClassPathMapperScanner err",e);
+        } catch (Throwable e) {
+            LOGGER.error("patchMyBatisClassPathMapperScanner err", e);
+        }
+    }
+
+    /**
+     * 插桩获取Mybatis扫包路径
+     *
+     * @param ctClass
+     * @param classPool
+     */
+    @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.mapper.MapperScannerConfigurer")
+    public static void patchMapperScannerConfigurer(CtClass ctClass, ClassPool classPool) {
+        LOGGER.info("MyBatisBeanRefresh.MapperScannerConfigurer");
+        try {
+            CtMethod method = ctClass.getDeclaredMethod("postProcessBeanDefinitionRegistry");
+            method.insertBefore(
+                    "org.hotswap.agent.plugin.mybatis.refresh.MyBatisSpringBeanDefinition.loadBasePackages(this.basePackage);");
+        } catch (Throwable e) {
+            LOGGER.error("patchMyBatisClassPathMapperScanner err", e);
         }
     }
 
