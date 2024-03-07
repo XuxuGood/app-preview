@@ -52,19 +52,19 @@ public class HotSwapCall {
         modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/OrderController.class")));
         requestList.add(modifiedRequest);
 
-//        modifiedRequest = new BatchModifiedClassRequest();
-//        //热更新类名
-//        modifiedRequest.setClassName("com.netease.cloud.dao.UserMapper");
-//        //热更新的字节码
-//        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/dao/UserMapper.class")));
-//        requestList.add(modifiedRequest);
-//
-//        modifiedRequest = new BatchModifiedClassRequest();
-//        //热更新类名
-//        modifiedRequest.setClassName("com.netease.cloud.controller.UserController");
-//        //热更新的字节码
-//        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/UserController.class")));
-//        requestList.add(modifiedRequest);
+        modifiedRequest = new BatchModifiedClassRequest();
+        //热更新类名
+        modifiedRequest.setClassName("com.netease.cloud.dao.UserMapper");
+        //热更新的字节码
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/dao/UserMapper.class")));
+        requestList.add(modifiedRequest);
+
+        modifiedRequest = new BatchModifiedClassRequest();
+        //热更新类名
+        modifiedRequest.setClassName("com.netease.cloud.controller.UserController");
+        //热更新的字节码
+        modifiedRequest.setBytes(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/com/netease/cloud/controller/UserController.class")));
+        requestList.add(modifiedRequest);
 
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(requestList), mediaType);

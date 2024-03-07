@@ -43,10 +43,10 @@ public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
                             byte[] classfileBuffer) throws IllegalClassFormatException {
         final SpringChangesAnalyzer analyzer = new SpringChangesAnalyzer(appClassLoader);
         if (classBeingRedefined != null) {
-            if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
+//            if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
                 scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(),
                         basePackage, className, classfileBuffer, scheduler));
-            }
+//            }
         }
         return classfileBuffer;
     }

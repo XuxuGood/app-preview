@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2023 the HotswapAgent authors.
+ * Copyright 2013-2019 the HotswapAgent authors.
  *
  * This file is part of HotswapAgent.
  *
@@ -20,14 +20,7 @@ package org.hotswap.agent.plugin.mybatis.transformers;
 
 import org.apache.ibatis.javassist.bytecode.AccessFlag;
 import org.hotswap.agent.annotation.OnClassLoadEvent;
-import org.hotswap.agent.javassist.CannotCompileException;
-import org.hotswap.agent.javassist.ClassPool;
-import org.hotswap.agent.javassist.CtClass;
-import org.hotswap.agent.javassist.CtConstructor;
-import org.hotswap.agent.javassist.CtField;
-import org.hotswap.agent.javassist.CtMethod;
-import org.hotswap.agent.javassist.CtNewMethod;
-import org.hotswap.agent.javassist.NotFoundException;
+import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.mybatis.MyBatisPlugin;
 import org.hotswap.agent.plugin.mybatis.proxy.ConfigurationProxy;
@@ -61,16 +54,16 @@ public class MyBatisTransformers {
         CtMethod method = ctClass.getDeclaredMethod("createDocument");
         method.insertBefore("{" +
                 "this." + SRC_FILE_NAME_FIELD + " = " + org.hotswap.agent.util.IOUtils.class.getName() + ".extractFileNameFromInputSource($1);" +
-            "}"
+                "}"
         );
         CtMethod newMethod = CtNewMethod.make(
-            "public boolean " + REFRESH_DOCUMENT_METHOD + "() {" +
-                "if(this." + SRC_FILE_NAME_FIELD + "!=null) {" +
-                    "this.document=createDocument(new org.xml.sax.InputSource(new java.io.FileReader(this." + SRC_FILE_NAME_FIELD + ")));" +
-                    "return true;" +
-                "}" +
-                "return false;" +
-            "}", ctClass);
+                "public boolean " + REFRESH_DOCUMENT_METHOD + "() {" +
+                        "if(this." + SRC_FILE_NAME_FIELD + "!=null) {" +
+                        "this.document=createDocument(new org.xml.sax.InputSource(new java.io.FileReader(this." + SRC_FILE_NAME_FIELD + ")));" +
+                        "return true;" +
+                        "}" +
+                        "return false;" +
+                        "}", ctClass);
         ctClass.addMethod(newMethod);
         LOGGER.debug("org.apache.ibatis.parsing.XPathParser patched.");
     }
@@ -93,19 +86,19 @@ public class MyBatisTransformers {
         src.append("}");
 
         CtClass[] constructorParams = new CtClass[] {
-            classPool.get("org.apache.ibatis.parsing.XPathParser"),
-            classPool.get("java.lang.String"),
-            classPool.get("java.util.Properties")
+                classPool.get("org.apache.ibatis.parsing.XPathParser"),
+                classPool.get("java.lang.String"),
+                classPool.get("java.util.Properties")
         };
 
         ctClass.getDeclaredConstructor(constructorParams).insertAfter(src.toString());
         CtMethod newMethod = CtNewMethod.make(
-            "public void " + REFRESH_METHOD + "() {" +
-                "if(" + XPathParserCaller.class.getName() + ".refreshDocument(this.parser)) {" +
-                    "this.parsed=false;" +
-                    "parse();" +
-                "}" +
-            "}", ctClass);
+                "public void " + REFRESH_METHOD + "() {" +
+                        "if(" + XPathParserCaller.class.getName() + ".refreshDocument(this.parser)) {" +
+                        "this.parsed=false;" +
+                        "parse();" +
+                        "}" +
+                        "}", ctClass);
         ctClass.addMethod(newMethod);
         LOGGER.debug("org.apache.ibatis.builder.xml.XMLConfigBuilder patched.");
     }
@@ -119,16 +112,24 @@ public class MyBatisTransformers {
         src.append("}");
 
         CtClass[] constructorParams = new CtClass[] {
-            classPool.get("org.apache.ibatis.parsing.XPathParser"),
-            classPool.get("org.apache.ibatis.session.Configuration"),
-            classPool.get("java.lang.String"),
-            classPool.get("java.util.Map")
+                classPool.get("org.apache.ibatis.parsing.XPathParser"),
+                classPool.get("org.apache.ibatis.session.Configuration"),
+                classPool.get("java.lang.String"),
+                classPool.get("java.util.Map")
         };
 
         CtConstructor constructor = ctClass.getDeclaredConstructor(constructorParams);
         constructor.insertAfter(src.toString());
         LOGGER.debug("org.apache.ibatis.builder.xml.XMLMapperBuilder patched.");
     }
+
+//    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.defaults.DefaultSqlSessionFactory")
+//    public static void patchDefaultSqlSessionFactory(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+//        ctClass.addField(CtField.make("public static java.util.ArrayList  _staticConfiguration = new java.util.ArrayList();", ctClass));
+//        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] { classPool.get("org.apache.ibatis.session.Configuration")});
+//        constructor.insertAfter("{_staticConfiguration.add($1);}");
+//        LOGGER.debug("org.apache.ibatis.session.defaults.DefaultSqlSessionFactory patched.");
+//    }
 
     @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.SqlSessionFactoryBuilder")
     public static void patchSqlSessionFactoryBuilder(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
