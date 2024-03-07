@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * @date 2023/7/9 9:22 PM
  */
 public class MyBatisBeanRefresh implements IHotExtHandler {
-    private static AgentLogger logger = AgentLogger.getLogger(MyBatisBeanRefresh.class);
+    private static final AgentLogger LOGGER = AgentLogger.getLogger(MyBatisBeanRefresh.class);
 
     public void afterHandle(ClassLoader classLoader, Class<?> classz, String path, byte[] bytes) {
         if (classz == null || !classz.isInterface()) {
@@ -70,7 +70,7 @@ public class MyBatisBeanRefresh implements IHotExtHandler {
             MyBatisSpringBeanDefinition.mybatisBeanDefinition(definitionHolder);
 
         } catch (Exception e) {
-            logger.error("Refresh Mybatis Bean err", e);
+            LOGGER.error("Refresh Mybatis Bean err", e);
         }
     }
 
