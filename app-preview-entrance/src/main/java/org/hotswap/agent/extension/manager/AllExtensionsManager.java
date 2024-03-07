@@ -1,6 +1,6 @@
-package com.netease.cloud.extension.manager;
+package org.hotswap.agent.extension.manager;
 
-import com.netease.cloud.extension.IHotExtHandler;
+import org.hotswap.agent.extension.IHotExtHandler;
 import org.hotswap.agent.logging.AgentLogger;
 
 import java.util.Collection;
@@ -10,14 +10,16 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 所有的扩展包注册管理器
  *
- * @author Liubsyy
+ * @author xiaoxuxuy
  */
 public class AllExtensionsManager {
     private static final AgentLogger logger = AgentLogger.getLogger(AllExtensionsManager.class);
 
-    private Map<Class<?>, IHotExtHandler> allHandlers = new ConcurrentHashMap<>();
+    private final Map<Class<?>, IHotExtHandler> allHandlers = new ConcurrentHashMap<>();
 
-    private static AllExtensionsManager instance = new AllExtensionsManager();
+    private static final AllExtensionsManager instance = new AllExtensionsManager();
+
+    protected ClassLoader classLoader;
 
     static {
         //如果某个handler 100%要注册，写在这
@@ -47,5 +49,12 @@ public class AllExtensionsManager {
         return allHandlers.values();
     }
 
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
 }

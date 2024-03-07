@@ -1,16 +1,11 @@
 package com.netease.cloud;
 
 import com.netease.cloud.core.config.HotSwapConfiguration;
-import com.netease.cloud.extension.transform.HotSwapExtManager;
 import io.vertx.core.Vertx;
 import org.hotswap.agent.HotswapAgent;
 import org.hotswap.agent.logging.AgentLogger;
 
-import java.io.File;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Objects;
 
 /**
  * @Author xiaoxuxuy
@@ -35,8 +30,6 @@ public class HotSwapEntrance {
         parseArgs(args);
         // 加载配置文件
         HotSwapConfiguration.getInstance().loadConfigurationFile();
-        // 初始化热部署扩展
-        HotSwapExtManager.getInstance().init(inst);
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
         // 启动 vertx http 服务

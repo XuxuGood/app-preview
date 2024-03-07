@@ -1,4 +1,4 @@
-package com.netease.cloud.extension.util;
+package org.hotswap.agent.util;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;

@@ -1,5 +1,6 @@
 package org.hotswap.agent.plugin.mybatis.refresh;
 
+import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.logging.AgentLogger;
 import org.mybatis.spring.mapper.ClassPathMapperScanner;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -28,8 +29,7 @@ public class MyBatisSpringBeanDefinition {
             return;
         }
         mapperScanner = scanner;
-        MyBatisBeanRefresh myBatisBeanRefresh = new MyBatisBeanRefresh();
-        System.out.println(1111);
+        AllExtensionsManager.getInstance().addHotExtHandler(new MyBatisBeanRefresh());
     }
 
 

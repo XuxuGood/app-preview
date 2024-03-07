@@ -3,16 +3,16 @@ package com.netease.cloud.core.handler;
 import com.google.gson.reflect.TypeToken;
 import com.netease.cloud.core.model.BatchModifiedClassRequest;
 import com.netease.cloud.core.model.HotSwapResponse;
-import com.netease.cloud.extension.AutoChoose;
-import com.netease.cloud.extension.transform.HotSwapExtManager;
-import com.netease.cloud.extension.util.JsonUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import org.hotswap.agent.config.PluginManager;
+import org.hotswap.agent.extension.AutoChoose;
+import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
+import org.hotswap.agent.util.JsonUtils;
 
 import java.io.*;
 import java.lang.instrument.Instrumentation;
@@ -48,7 +48,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             LOGGER.debug("hotswap request params: {}, to pojo: {}", bodyString, requestList);
 
             // 获取classloader
-            ClassLoader classLoader = HotSwapExtManager.getInstance().getClassLoader();
+            ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
             if (classLoader == null) {
                 classLoader = Thread.currentThread().getContextClassLoader();
             }

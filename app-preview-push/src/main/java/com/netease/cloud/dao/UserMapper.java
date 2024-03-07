@@ -11,7 +11,6 @@ import java.util.List;
  * @Date 2024年03月05日
  * @Version: 1.0
  */
-@Mapper
 @Repository
 public interface UserMapper {
 
@@ -19,11 +18,13 @@ public interface UserMapper {
 
     User getUserById(int id);
 
+    User getUserById2(int id);
+
     User getUserById3(int id);
 
     User getUserById4(int id);
 
-    User getUserById5(int id);
+    User getUserById7(int id);
 
     int addUser(User user);
 

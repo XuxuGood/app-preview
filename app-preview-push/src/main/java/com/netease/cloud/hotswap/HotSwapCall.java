@@ -18,10 +18,10 @@ import java.util.Objects;
 public class HotSwapCall {
 
     public static void main(String[] args) throws IOException {
-        // 热更新类
-        hotswapClass();
         // 热更新配置文件
         hotswapResource();
+        // 热更新类
+        hotswapClass();
     }
 
     private static void hotswapClass() throws IOException {

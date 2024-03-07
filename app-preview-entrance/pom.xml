@@ -48,6 +48,7 @@
             <classifier>osx-x86_64</classifier>
         </dependency>
 
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -126,14 +127,6 @@
                                     <include>org.hotswapagent:hotswap-agent</include>
                                     <include>io.vertx:*</include>
                                     <include>io.netty:*</include>
-<!--                                    <include>org.springframework:*</include>-->
-<!--                                    <include>org.springframework:spring-core</include>-->
-<!--                                    <include>org.springframework:spring-beans</include>-->
-<!--                                    <include>org.springframework:spring-aop</include>-->
-<!--                                    <include>org.springframework:spring-expression</include>-->
-<!--                                    <include>org.springframework:spring-tx</include>-->
-<!--                                    <include>org.mybatis:mybatis-spring</include>-->
-<!--                                    <include>commons-logging:commons-logging</include>-->
                                     <include>com.google.code.gson:gson</include>
                                     <include>com.fasterxml.jackson.core:jackson-core</include>
                                     <include>com.fasterxml.jackson.core:jackson-databind</include>
