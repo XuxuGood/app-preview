@@ -37,7 +37,7 @@ public class MyBatisBeanRefresh implements IHotExtHandler {
         }
         try {
             Class<?> sqlSessionFactoryClz = Class.forName("org.apache.ibatis.session.defaults.DefaultSqlSessionFactory", true, classLoader);
-            Field staticConfiguration = null;
+            Field staticConfiguration;
             try {
                 staticConfiguration = sqlSessionFactoryClz.getDeclaredField("_staticConfiguration");
             } catch (NoSuchFieldException ex) {
