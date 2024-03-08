@@ -40,6 +40,10 @@
         select * from user where id = #{id};
     </select>
 
+    <select id="getUserById8" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
     <insert id="addUser" parameterType="com.netease.cloud.model.User" useGeneratedKeys="true" keyProperty="id">
         insert into user(name,pwd) values(#{name},#{pwd});
     </insert>

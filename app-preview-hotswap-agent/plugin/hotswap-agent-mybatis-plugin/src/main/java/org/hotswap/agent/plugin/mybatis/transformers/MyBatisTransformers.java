@@ -132,13 +132,13 @@ public class MyBatisTransformers {
         LOGGER.debug("org.apache.ibatis.builder.xml.XMLMapperBuilder patched.");
     }
 
-//    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.defaults.DefaultSqlSessionFactory")
-//    public static void patchDefaultSqlSessionFactory(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-//        ctClass.addField(CtField.make("public static java.util.ArrayList  _staticConfiguration = new java.util.ArrayList();", ctClass));
-//        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] { classPool.get("org.apache.ibatis.session.Configuration")});
-//        constructor.insertAfter("{_staticConfiguration.add($1);}");
-//        LOGGER.debug("org.apache.ibatis.session.defaults.DefaultSqlSessionFactory patched.");
-//    }
+    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.defaults.DefaultSqlSessionFactory")
+    public static void patchDefaultSqlSessionFactory(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        ctClass.addField(CtField.make("public static java.util.ArrayList  _staticConfiguration = new java.util.ArrayList();", ctClass));
+        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] { classPool.get("org.apache.ibatis.session.Configuration")});
+        constructor.insertAfter("{_staticConfiguration.add($1);}");
+        LOGGER.debug("org.apache.ibatis.session.defaults.DefaultSqlSessionFactory patched.");
+    }
 
     @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.SqlSessionFactoryBuilder")
     public static void patchSqlSessionFactoryBuilder(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {

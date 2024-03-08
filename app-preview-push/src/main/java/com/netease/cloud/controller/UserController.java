@@ -39,6 +39,11 @@ public class UserController {
         return userMapper.getUserById7(id);
     }
 
+    @GetMapping(value = "/getUserById8")
+    public User getUserById8(@RequestParam(value = "id") int id) {
+        return userMapper.getUserById8(id);
+    }
+
     @PostMapping("/addUser")
     public String addUser() {
         userMapper.addUser(new User("Lucy" + UUID.randomUUID(), UUID.randomUUID().toString()));
