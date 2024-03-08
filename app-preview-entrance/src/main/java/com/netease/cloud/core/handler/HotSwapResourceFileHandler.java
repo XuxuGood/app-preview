@@ -1,5 +1,7 @@
 package com.netease.cloud.core.handler;
 
+import com.google.gson.reflect.TypeToken;
+import com.netease.cloud.core.model.BatchModifiedClassRequest;
 import com.netease.cloud.core.model.BatchModifiedResourceRequest;
 import com.netease.cloud.core.model.HotSwapResponse;
 import io.vertx.core.Handler;
@@ -13,6 +15,8 @@ import org.hotswap.agent.util.JsonUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * @Author xiaoxuxuy
@@ -34,9 +38,10 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
         routingContext.request().bodyHandler(requestBody -> {
             String bodyString = requestBody.toString();
 
-            BatchModifiedResourceRequest requestResource = JsonUtils.parse(bodyString, BatchModifiedResourceRequest.class);
+            Type listType = TypeToken.getParameterized(List.class, BatchModifiedResourceRequest.class).getType();
+            List<BatchModifiedResourceRequest> requestResourceList = JsonUtils.parse(bodyString, listType);
 
-            LOGGER.debug("hotswap request params: {}, to pojo: {}", bodyString, requestResource);
+            LOGGER.debug("hotswap resource request params: {}, to pojo: {}", bodyString, requestResourceList);
 
             // 获取classloader
             ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
@@ -44,27 +49,29 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
                 classLoader = Thread.currentThread().getContextClassLoader();
             }
 
-            String resourcePath = requestResource.getPath();
-            byte[] resourceBytes = requestResource.getContent().getBytes();
+            for (BatchModifiedResourceRequest requestResource : requestResourceList) {
+                String resourcePath = requestResource.getPath();
+                byte[] resourceBytes = requestResource.getContent().getBytes();
 
-            // 前置处理
-            autoChoose.preHandle(classLoader, resourcePath, resourceBytes);
+                // 前置处理
+                autoChoose.preHandle(classLoader, resourcePath, resourceBytes);
 
-            // 将content内容写进path文件中
-            try (FileOutputStream fos = new FileOutputStream(resourcePath)) {
-                // 将content内容写入到文件中
-                fos.write(resourceBytes);
-                fos.flush();
-            } catch (IOException e) {
-                LOGGER.error("Exception writing to file：" + e.getMessage(), e);
-                HotSwapResponse errorResponse = HotSwapResponse.of("Exception writing to file", 400, e.getMessage());
-                HttpServerResponse response = routingContext.response();
-                response.end(JsonObject.mapFrom(errorResponse).toBuffer());
-                return;
+                // 将content内容写进path文件中
+                try (FileOutputStream fos = new FileOutputStream(resourcePath)) {
+                    // 将content内容写入到文件中
+                    fos.write(resourceBytes);
+                    fos.flush();
+                } catch (IOException e) {
+                    LOGGER.error("Exception writing to file：" + e.getMessage(), e);
+                    HotSwapResponse errorResponse = HotSwapResponse.of("Exception writing to file", 400, e.getMessage());
+                    HttpServerResponse response = routingContext.response();
+                    response.end(JsonObject.mapFrom(errorResponse).toBuffer());
+                    return;
+                }
+
+                // 后置处理
+                autoChoose.afterHandle(classLoader, null, resourcePath, resourceBytes);
             }
-
-            // 后置处理
-            autoChoose.afterHandle(classLoader, null, resourcePath, resourceBytes);
 
             HotSwapResponse successResponse = HotSwapResponse.success("resource updated successfully");
             HttpServerResponse response = routingContext.response();

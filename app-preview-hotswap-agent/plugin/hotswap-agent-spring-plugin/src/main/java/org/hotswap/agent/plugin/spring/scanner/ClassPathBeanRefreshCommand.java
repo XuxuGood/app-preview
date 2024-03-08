@@ -92,10 +92,6 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
 
             LOGGER.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
 
-            if (AllExtensionsManager.getInstance().getClassLoader() != null) {
-                appClassLoader = AllExtensionsManager.getInstance().getClassLoader();
-            }
-
             Class<?> clazz = Class.forName("org.hotswap.agent.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
             Method method = clazz.getDeclaredMethod(
                     "refreshClassAndCheckReload", new Class[]{ClassLoader.class, String.class, String.class, byte[].class});

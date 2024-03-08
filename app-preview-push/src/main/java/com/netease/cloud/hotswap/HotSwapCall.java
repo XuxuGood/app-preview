@@ -83,24 +83,28 @@ public class HotSwapCall {
         // 远程调用
         OkHttpClient client = MyHttpClient.getClient();
 
-//        BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
-////        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/application.properties");
-//        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/application.properties");
-//        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/application.properties"))));
+        List<BatchModifiedResourceRequest> requestList = new ArrayList<>();
 
         BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
+//        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/application.properties");
+        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/application.properties");
+        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/application.properties"))));
+        requestList.add(resourceRequest);
+
+        resourceRequest = new BatchModifiedResourceRequest();
         resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/UserMapper.xml");
 //        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/UserMapper.xml");
         resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/UserMapper.xml"))));
+        requestList.add(resourceRequest);
 
-//        BatchModifiedResourceRequest resourceRequest = new BatchModifiedResourceRequest();
-//        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/OrderMapper.xml");
-////        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/OrderMapper.xml");
-//        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/OrderMapper.xml"))));
-
+        resourceRequest = new BatchModifiedResourceRequest();
+        resourceRequest.setPath("/www/app-preview/app/BOOT-INF/classes/mapper/OrderMapper.xml");
+//        resourceRequest.setPath("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/target/classes/mapper/OrderMapper.xml");
+        resourceRequest.setContent(new String(Files.readAllBytes(Paths.get("/Users/xiaoxuxuy/Desktop/工作/网易/项目/低代码/app-preview/app-preview-push/src/main/resources/mapper/OrderMapper.xml"))));
+        requestList.add(resourceRequest);
 
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(resourceRequest), mediaType);
+        RequestBody requestBody = RequestBody.create(JsonUtils.toJsonString(requestList), mediaType);
 
         Request request = new Request.Builder()
 //                .url("http://localhost:8090/app-preview/hotswap/resource")
