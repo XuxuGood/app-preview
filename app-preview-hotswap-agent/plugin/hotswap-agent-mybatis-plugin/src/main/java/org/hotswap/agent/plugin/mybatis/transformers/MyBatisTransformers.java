@@ -85,7 +85,7 @@ public class MyBatisTransformers {
         src.append("this.configuration = " + ConfigurationProxy.class.getName() + ".getWrapper(this).proxy(this.configuration);");
         src.append("}");
 
-        CtClass[] constructorParams = new CtClass[] {
+        CtClass[] constructorParams = new CtClass[]{
                 classPool.get("org.apache.ibatis.parsing.XPathParser"),
                 classPool.get("java.lang.String"),
                 classPool.get("java.util.Properties")
@@ -111,7 +111,7 @@ public class MyBatisTransformers {
                 XPathParserCaller.class.getName() + ".getSrcFileName(this.parser)", "java.lang.String", "this", "java.lang.Object"));
         src.append("}");
 
-        CtClass[] constructorParams = new CtClass[] {
+        CtClass[] constructorParams = new CtClass[]{
                 classPool.get("org.apache.ibatis.parsing.XPathParser"),
                 classPool.get("org.apache.ibatis.session.Configuration"),
                 classPool.get("java.lang.String"),
@@ -120,6 +120,15 @@ public class MyBatisTransformers {
 
         CtConstructor constructor = ctClass.getDeclaredConstructor(constructorParams);
         constructor.insertAfter(src.toString());
+
+        // 插桩：强制重新load配置文件
+        CtMethod method = ctClass.getDeclaredMethod("parse");
+        method.insertBefore(
+//                ConfigurationCaller.class.getName() + ".removeMappedStatements(configuration);" +
+                        "configurationElement(parser.evalNode(\"/mapper\"));" +
+                        "bindMapperForNamespace();"
+        );
+
         LOGGER.debug("org.apache.ibatis.builder.xml.XMLMapperBuilder patched.");
     }
 
@@ -145,7 +154,7 @@ public class MyBatisTransformers {
         ctClass.addMethod(setMethod);
 
         CtMethod buildMethod = ctClass.getDeclaredMethod("build",
-                new CtClass[] {classPool.get("org.apache.ibatis.session.Configuration")});
+                new CtClass[]{classPool.get("org.apache.ibatis.session.Configuration")});
         buildMethod.insertBefore("{" +
                 "if (this." + FACTORYBEAN_FIELD + " != null) {" +
                 "config = " + SqlSessionFactoryBeanCaller.class.getName() + ".proxyConfiguration(this." + FACTORYBEAN_FIELD + ", config);" +
@@ -168,7 +177,7 @@ public class MyBatisTransformers {
                 "}"
         );
 
-        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] {});
+        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{});
         constructor.insertAfter("{" +
                 SqlSessionFactoryBeanCaller.class.getName() + ".setFactoryBean(this.sqlSessionFactoryBuilder, this);" +
                 "}");

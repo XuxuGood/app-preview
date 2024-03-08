@@ -1,7 +1,6 @@
 package com.netease.cloud.dao;
 
 import com.netease.cloud.model.Order;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
