@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SpringChangedReloadCommand extends MergeableCommand {
-    private static AgentLogger LOGGER = AgentLogger.getLogger(XmlsChangedCommand.class);
+    private static AgentLogger LOGGER = AgentLogger.getLogger(SpringChangedReloadCommand.class);
 
     // unit test only
     private static AtomicLong waitingTaskCount = new AtomicLong(0);
