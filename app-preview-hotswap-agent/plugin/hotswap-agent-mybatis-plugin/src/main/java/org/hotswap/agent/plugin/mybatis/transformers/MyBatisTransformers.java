@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the HotswapAgent authors.
+ * Copyright 2013-2023 the HotswapAgent authors.
  *
  * This file is part of HotswapAgent.
  *
@@ -20,7 +20,14 @@ package org.hotswap.agent.plugin.mybatis.transformers;
 
 import org.apache.ibatis.javassist.bytecode.AccessFlag;
 import org.hotswap.agent.annotation.OnClassLoadEvent;
-import org.hotswap.agent.javassist.*;
+import org.hotswap.agent.javassist.CannotCompileException;
+import org.hotswap.agent.javassist.ClassPool;
+import org.hotswap.agent.javassist.CtClass;
+import org.hotswap.agent.javassist.CtConstructor;
+import org.hotswap.agent.javassist.CtField;
+import org.hotswap.agent.javassist.CtMethod;
+import org.hotswap.agent.javassist.CtNewMethod;
+import org.hotswap.agent.javassist.NotFoundException;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.mybatis.MyBatisPlugin;
 import org.hotswap.agent.plugin.mybatis.proxy.ConfigurationProxy;
@@ -85,7 +92,7 @@ public class MyBatisTransformers {
         src.append("this.configuration = " + ConfigurationProxy.class.getName() + ".getWrapper(this).proxy(this.configuration);");
         src.append("}");
 
-        CtClass[] constructorParams = new CtClass[]{
+        CtClass[] constructorParams = new CtClass[] {
                 classPool.get("org.apache.ibatis.parsing.XPathParser"),
                 classPool.get("java.lang.String"),
                 classPool.get("java.util.Properties")
@@ -111,7 +118,7 @@ public class MyBatisTransformers {
                 XPathParserCaller.class.getName() + ".getSrcFileName(this.parser)", "java.lang.String", "this", "java.lang.Object"));
         src.append("}");
 
-        CtClass[] constructorParams = new CtClass[]{
+        CtClass[] constructorParams = new CtClass[] {
                 classPool.get("org.apache.ibatis.parsing.XPathParser"),
                 classPool.get("org.apache.ibatis.session.Configuration"),
                 classPool.get("java.lang.String"),
@@ -120,24 +127,7 @@ public class MyBatisTransformers {
 
         CtConstructor constructor = ctClass.getDeclaredConstructor(constructorParams);
         constructor.insertAfter(src.toString());
-
-        // 插桩：强制重新load配置文件
-        CtMethod method = ctClass.getDeclaredMethod("parse");
-        method.insertBefore(
-//                ConfigurationCaller.class.getName() + ".removeMappedStatements(configuration);" +
-                        "configurationElement(parser.evalNode(\"/mapper\"));" +
-                        "bindMapperForNamespace();"
-        );
-
         LOGGER.debug("org.apache.ibatis.builder.xml.XMLMapperBuilder patched.");
-    }
-
-    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.defaults.DefaultSqlSessionFactory")
-    public static void patchDefaultSqlSessionFactory(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        ctClass.addField(CtField.make("public static java.util.ArrayList  _staticConfiguration = new java.util.ArrayList();", ctClass));
-        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] { classPool.get("org.apache.ibatis.session.Configuration")});
-        constructor.insertAfter("{_staticConfiguration.add($1);}");
-        LOGGER.debug("org.apache.ibatis.session.defaults.DefaultSqlSessionFactory patched.");
     }
 
     @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.SqlSessionFactoryBuilder")
@@ -154,7 +144,7 @@ public class MyBatisTransformers {
         ctClass.addMethod(setMethod);
 
         CtMethod buildMethod = ctClass.getDeclaredMethod("build",
-                new CtClass[]{classPool.get("org.apache.ibatis.session.Configuration")});
+                new CtClass[] {classPool.get("org.apache.ibatis.session.Configuration")});
         buildMethod.insertBefore("{" +
                 "if (this." + FACTORYBEAN_FIELD + " != null) {" +
                 "config = " + SqlSessionFactoryBeanCaller.class.getName() + ".proxyConfiguration(this." + FACTORYBEAN_FIELD + ", config);" +
@@ -177,7 +167,7 @@ public class MyBatisTransformers {
                 "}"
         );
 
-        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{});
+        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] {});
         constructor.insertAfter("{" +
                 SqlSessionFactoryBeanCaller.class.getName() + ".setFactoryBean(this.sqlSessionFactoryBuilder, this);" +
                 "}");

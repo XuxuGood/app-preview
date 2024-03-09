@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the HotswapAgent authors.
+ * Copyright 2013-2023 the HotswapAgent authors.
  *
  * This file is part of HotswapAgent.
  *
@@ -18,27 +18,22 @@
  */
 package org.hotswap.agent.plugin.mybatis;
 
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.session.Configuration;
-import org.hotswap.agent.annotation.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.hotswap.agent.annotation.FileEvent;
+import org.hotswap.agent.annotation.Init;
+import org.hotswap.agent.annotation.OnResourceFileEvent;
+import org.hotswap.agent.annotation.Plugin;
 import org.hotswap.agent.command.Command;
 import org.hotswap.agent.command.ReflectionCommand;
 import org.hotswap.agent.command.Scheduler;
 import org.hotswap.agent.config.PluginConfiguration;
-import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
-import org.hotswap.agent.plugin.mybatis.proxy.SpringMybatisConfigurationProxy;
 import org.hotswap.agent.plugin.mybatis.transformers.MyBatisTransformers;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Reload MyBatis configuration after entity create/change.
@@ -47,13 +42,11 @@ import java.util.stream.Collectors;
  */
 @Plugin(name = "MyBatis",
         description = "Reload MyBatis configuration after configuration create/change.",
-        testedVersions = {"All between 5.3.2"},
-        expectedVersions = {"5.3.2"},
+        testedVersions = {"All between 3.5.9"},
+        expectedVersions = {"3.5.9"},
         supportClass = {MyBatisTransformers.class})
 public class MyBatisPlugin {
     private static AgentLogger LOGGER = AgentLogger.getLogger(MyBatisPlugin.class);
-
-    public static final String CONFIGURATION_MAPPED_STATEMENT_PROXY_METHOD = "$$ha$removeMappedStatements";
 
     @Init
     Scheduler scheduler;
@@ -79,103 +72,9 @@ public class MyBatisPlugin {
     }
 
     @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
-    public void registerResourceListeners(URL url) throws UnsupportedEncodingException {
-        String urlPath = URLDecoder.decode(url.getPath(), "UTF-8");
-        if (configurationMap.containsKey(urlPath)) {
+    public void registerResourceListeners(URL url) throws URISyntaxException {
+        if (configurationMap.containsKey(Paths.get(url.toURI()).toFile().getAbsolutePath())) {
             refresh(500);
-        }
-    }
-
-    @OnClassLoadEvent(
-            classNameRegexp = "org.apache.ibatis.session.Configuration\\$StrictMap"
-    )
-    public static void patchStrictMap(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod method = ctClass.getDeclaredMethod("put", new CtClass[]{classPool.get(String.class.getName()), classPool.get(Object.class.getName())});
-        method.insertBefore("if(containsKey($1)){remove($1);}");
-    }
-
-    @OnClassLoadEvent(
-            classNameRegexp = "com.baomidou.mybatisplus.core.MybatisConfiguration\\$StrictMap",
-            events = {LoadEvent.DEFINE}
-    )
-    public static void patchPlusStrictMap(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod method = ctClass.getDeclaredMethod("put", new CtClass[]{classPool.get(String.class.getName()), classPool.get(Object.class.getName())});
-        method.insertBefore("if(containsKey($1)){remove($1);}");
-    }
-
-
-    @OnClassLoadEvent(
-            classNameRegexp = "org.apache.ibatis.session.Configuration"
-    )
-    public static void transformConfiguration(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        try {
-            CtMethod addMappedStatementMethod = ctClass.getDeclaredMethod("addMappedStatement", new CtClass[]{classPool.get("org.apache.ibatis.mapping.MappedStatement")});
-            addMappedStatementMethod.setBody("{if(mappedStatements.containsKey($1.getId())){mappedStatements.remove($1.getId());}mappedStatements.put($1.getId(),$1);}");
-            CtMethod addParameterMapMethod = ctClass.getDeclaredMethod("addParameterMap", new CtClass[]{classPool.get("org.apache.ibatis.mapping.ParameterMap")});
-            addParameterMapMethod.setBody("{if(parameterMaps.containsKey($1.getId())){parameterMaps.remove($1.getId());}parameterMaps.put($1.getId(),$1);}");
-            CtMethod addResultMapMethod = ctClass.getDeclaredMethod("addResultMap", new CtClass[]{classPool.get("org.apache.ibatis.mapping.ResultMap")});
-            addResultMapMethod.setBody("{if(resultMaps.containsKey($1.getId())){resultMaps.remove($1.getId());}resultMaps.put($1.getId(),$1);checkLocallyForDiscriminatedNestedResultMaps($1);checkGloballyForDiscriminatedNestedResultMaps($1);}");
-            CtMethod addKeyGeneratorMethod = ctClass.getDeclaredMethod("addKeyGenerator", new CtClass[]{classPool.get("java.lang.String"), classPool.get("org.apache.ibatis.executor.keygen.KeyGenerator")});
-            addKeyGeneratorMethod.setBody("{if(keyGenerators.containsKey($1)){keyGenerators.remove($1);}keyGenerators.put($1,$2);}");
-            CtMethod addCacheMethod = ctClass.getDeclaredMethod("addCache", new CtClass[]{classPool.get("org.apache.ibatis.cache.Cache")});
-            addCacheMethod.setBody("{if(caches.containsKey($1.getId())){caches.remove($1.getId());}caches.put($1.getId(),$1);}");
-
-            // 插桩：清空 Mapper 方法 mappedStatements 缓存信息
-            CtMethod proxyMethod = CtNewMethod.make(
-                    "public void " + CONFIGURATION_MAPPED_STATEMENT_PROXY_METHOD + "() {" +
-                            "    java.util.Iterator it = mappedStatements.keySet().iterator();" +
-                            "    while (it.hasNext()) {" +
-                            "        Object key = it.next();" +
-                            "        mappedStatements.remove(key);" +
-                            "    }" +
-                            "}", ctClass);
-            ctClass.addMethod(proxyMethod);
-        } catch (Throwable e) {
-            LOGGER.error("mybatis class enhance error: {}", e);
-        }
-
-    }
-
-    @OnClassLoadEvent(
-            classNameRegexp = "com.baomidou.mybatisplus.core.MybatisConfiguration",
-            events = {LoadEvent.DEFINE}
-    )
-    public static void transformPlusConfiguration(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod removeMappedStatementMethod = CtNewMethod.make("public void $$removeMappedStatement(String statementName){if(mappedStatements.containsKey(statementName)){mappedStatements.remove(statementName);}}", ctClass);
-        ctClass.addMethod(removeMappedStatementMethod);
-        ctClass.getDeclaredMethod("addMappedStatement", new CtClass[]{classPool.get("org.apache.ibatis.mapping.MappedStatement")}).insertBefore("$$removeMappedStatement($1.getId());");
-    }
-
-    /**
-     * ClassPathMapperScanner 构造函数插桩，获取ClassPathMapperScanner实例
-     */
-    @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.mapper.ClassPathMapperScanner")
-    public static void patchMyBatisClassPathMapperScanner(CtClass ctClass, ClassPool classPool) {
-        LOGGER.info("MyBatisBeanRefresh.patchMyBatisClassPathMapperScanner");
-        try {
-            CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{
-                    classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry")});
-            constructor.insertAfter("{org.hotswap.agent.plugin.mybatis.refresh.MyBatisSpringBeanDefinition.loadScanner(this);}");
-        } catch (Throwable e) {
-            LOGGER.error("patchMyBatisClassPathMapperScanner err", e);
-        }
-    }
-
-    /**
-     * 插桩获取Mybatis扫包路径
-     *
-     * @param ctClass
-     * @param classPool
-     */
-    @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.mapper.MapperScannerConfigurer")
-    public static void patchMapperScannerConfigurer(CtClass ctClass, ClassPool classPool) {
-        LOGGER.info("MyBatisBeanRefresh.MapperScannerConfigurer");
-        try {
-            CtMethod method = ctClass.getDeclaredMethod("postProcessBeanDefinitionRegistry");
-            method.insertBefore(
-                    "org.hotswap.agent.plugin.mybatis.refresh.MyBatisSpringBeanDefinition.loadBasePackages(this.basePackage);");
-        } catch (Throwable e) {
-            LOGGER.error("patchMyBatisClassPathMapperScanner err", e);
         }
     }
 
