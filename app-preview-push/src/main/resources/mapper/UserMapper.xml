@@ -44,6 +44,42 @@
         select * from user where id = #{id};
     </select>
 
+    <select id="getUserById8" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById9" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById10" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById11" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById12" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById13" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById14" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById15" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="getUserById16" resultMap="BaseResultMap">
+        select * from user where id = #{id};
+    </select>
+
     <insert id="addUser" parameterType="com.netease.cloud.model.User" useGeneratedKeys="true" keyProperty="id">
         insert into user(name,pwd) values(#{name},#{pwd});
     </insert>

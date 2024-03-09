@@ -47,6 +47,11 @@ public class ResourceUtils {
             return paths[1];
         }
 
+        paths = filePath.split("BOOT-INF/classes/");
+        if (paths.length == 2) {
+            return paths[1];
+        }
+
         paths = filePath.split("WEB-INF/classes/");
         if (paths.length == 2) {
             return paths[1];

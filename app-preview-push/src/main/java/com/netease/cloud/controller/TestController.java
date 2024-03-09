@@ -30,4 +30,18 @@ public class TestController {
         return name;
     }
 
+    @RequestMapping("/hello2")
+    public String hello2() {
+        return name;
+    }
+
+    @RequestMapping("/hello3")
+    public String hello3() {
+        return name;
+    }
+
+    @RequestMapping("/hello4")
+    public String hello4() {
+        return name;
+    }
 }
