@@ -33,12 +33,7 @@ import org.hotswap.agent.annotation.OnResourceFileEvent;
 import org.hotswap.agent.annotation.Plugin;
 import org.hotswap.agent.command.Scheduler;
 import org.hotswap.agent.config.PluginConfiguration;
-import org.hotswap.agent.javassist.CannotCompileException;
-import org.hotswap.agent.javassist.ClassPool;
-import org.hotswap.agent.javassist.CtClass;
-import org.hotswap.agent.javassist.CtConstructor;
-import org.hotswap.agent.javassist.CtMethod;
-import org.hotswap.agent.javassist.NotFoundException;
+import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.spring.core.BeanDefinitionProcessor;
 import org.hotswap.agent.plugin.spring.reload.ClassChangedCommand;
@@ -62,6 +57,7 @@ import org.hotswap.agent.util.IOUtils;
 import org.hotswap.agent.util.PluginManagerInvoker;
 import org.hotswap.agent.util.ReflectionHelper;
 import org.hotswap.agent.watch.Watcher;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Spring plugin.
@@ -127,7 +123,7 @@ public class SpringPlugin {
         }
     }
 
-//    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
+    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
     public void registerResourceListeners(URL url) {
         scheduler.scheduleCommand(new XmlsChangedCommand(appClassLoader, url, scheduler));
         LOGGER.trace("Scheduling Spring reload for XML '{}'", url);
@@ -278,6 +274,19 @@ public class SpringPlugin {
 
         CtMethod removeBeanDefinitionMethod = clazz.getDeclaredMethod("removeBeanDefinition");
         removeBeanDefinitionMethod.insertBefore(BeanDefinitionProcessor.class.getName() + ".removeBeanDefinition(this, $1);");
+    }
+
+    @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.mapper.MapperScannerConfigurer")
+    public static void processPropertyPlaceHolders(ClassLoader appClassLoader, CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException, ClassNotFoundException {
+        ctClass.addField(CtField.make("public static final org.springframework.context.ApplicationContext _staticApplicationContext;", ctClass));
+
+        CtMethod applicationMethod = ctClass.getDeclaredMethod("setApplicationContext");
+        applicationMethod.insertAfter("_staticApplicationContext = $1;");
+
+        CtMethod placeHolderMethod = ctClass.getDeclaredMethod("processPropertyPlaceHolders");
+        placeHolderMethod.insertBefore("if (this.applicationContext == null) {"
+                + "this.applicationContext = _staticApplicationContext;"
+                + "}");
     }
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.aop.framework.CglibAopProxy")
