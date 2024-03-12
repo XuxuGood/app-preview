@@ -10,6 +10,7 @@ import org.hotswap.agent.HotswapAgent;
 import org.hotswap.agent.logging.AgentLogger;
 
 import java.lang.instrument.Instrumentation;
+import java.util.Properties;
 
 /**
  * Vertx Web 启动类
@@ -37,7 +38,7 @@ public class VertxApplication extends AbstractVerticle {
      */
     @Override
     public void start() throws Exception {
-        int remotePort = HotSwapConfiguration.getInstance().getRemotePort();
+        int remotePort = Integer.parseInt(HotSwapConfiguration.getInstance().getProperties().getProperty("REMOTE_PORT"));
         if (remotePort <= 0) {
             remotePort = defaultPort;
         }

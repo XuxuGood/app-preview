@@ -16,7 +16,7 @@ public class HotSwapEntrance {
 
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotswapAgent.class);
 
-    private static String hotSwapConfigFilePath;
+    private static String propertiesFilePath;
 
     /**
      * 热部署入口
@@ -55,8 +55,8 @@ public class HotSwapEntrance {
             String option = val[0];
             String optionValue = val[1];
 
-            if ("hotConf".equals(option)) {
-                hotSwapConfigFilePath = optionValue;
+            if ("propertiesFilePath".equals(option)) {
+                propertiesFilePath = optionValue;
             }
         }
     }
@@ -67,7 +67,7 @@ public class HotSwapEntrance {
      * @return
      */
     public static String getHotSwapConfigFile() {
-        return hotSwapConfigFilePath;
+        return propertiesFilePath;
     }
 
 }

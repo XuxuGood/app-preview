@@ -1,12 +1,12 @@
 package com.netease.cloud.core.config;
 
 import com.netease.cloud.HotSwapEntrance;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.hotswap.agent.util.HotswapProperties;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * @Author xiaoxuxuy
@@ -17,7 +17,7 @@ public class HotSwapConfiguration {
 
     private static volatile HotSwapConfiguration instance;
 
-    public int remotePort;
+    Properties properties = new HotswapProperties();
 
     public HotSwapConfiguration() {
     }
@@ -34,33 +34,32 @@ public class HotSwapConfiguration {
     }
 
     public void loadConfigurationFile() throws Exception {
-        // 创建一个DocumentBuilderFactory对象
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // 创建一个DocumentBuilder对象
-        DocumentBuilder builder = factory.newDocumentBuilder();
-
         if (HotSwapEntrance.getHotSwapConfigFile() == null || HotSwapEntrance.getHotSwapConfigFile().equals("")) {
             return;
         }
 
-        // 通过DocumentBuilder对象的parse方法加载配置文件
-        Document document = builder.parse(new File(HotSwapEntrance.getHotSwapConfigFile()));
-
-        // 获取根节点
-        Element root = document.getDocumentElement();
-
-        // 获取remote_port节点的值
-        this.remotePort = Integer.parseInt(root.getElementsByTagName("remote_port").item(0).getTextContent());
+        URL configurationURL = resourceNameToURL(HotSwapEntrance.getHotSwapConfigFile());
+        this.properties.load(configurationURL.openStream());
 
         instance = this;
     }
 
-    public int getRemotePort() {
-        return remotePort;
+    private static URL resourceNameToURL(String resource) throws Exception {
+        try {
+            // Try to format as a URL?
+            return new URL(resource);
+        } catch (MalformedURLException e) {
+            // try to locate a file
+            if (resource.startsWith("./"))
+                resource = resource.substring(2);
+
+            File file = new File(resource).getCanonicalFile();
+            return file.toURI().toURL();
+        }
     }
 
-    public void setRemotePort(int remotePort) {
-        this.remotePort = remotePort;
+    public Properties getProperties() {
+        return properties;
     }
 
 }
