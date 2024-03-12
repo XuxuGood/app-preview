@@ -50,9 +50,6 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
 
             // 获取classloader
             ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
-            if (classLoader == null) {
-                classLoader = Thread.currentThread().getContextClassLoader();
-            }
 
             Map<Class<?>, byte[]> reloadMap = new LinkedHashMap<>();
             Map<Class<?>, byte[]> afterHandlerMap = new LinkedHashMap<>();
@@ -71,8 +68,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             PluginManager.getInstance().hotswap(reloadMap);
 
             // 热更新后置处理
-            ClassLoader finalClassLoader = classLoader;
-            afterHandlerMap.forEach((aClass, bytes) -> autoChoose.afterHandle(finalClassLoader, aClass, aClass.getName(), bytes));
+            afterHandlerMap.forEach((aClass, bytes) -> autoChoose.afterHandle(classLoader, aClass, aClass.getName(), bytes));
 
             HotSwapResponse success = HotSwapResponse.success("success, updates(include inner classes)=" + requestList.size());
 

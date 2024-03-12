@@ -50,6 +50,9 @@ public class AllExtensionsManager {
     }
 
     public ClassLoader getClassLoader() {
+        if (null == classLoader) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
         return classLoader;
     }
 
