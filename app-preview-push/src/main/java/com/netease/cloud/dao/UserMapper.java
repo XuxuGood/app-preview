@@ -18,22 +18,6 @@ public interface UserMapper {
 
     User getUserById(int id);
 
-    User getUserById2(int id);
-
-    User getUserById3(int id);
-
-    User getUserById4(int id);
-
-    User getUserById7(int id);
-
-    User getUserById8(int id);
-
-    User getUserById9(int id);
-
-    User getUserById10(int id);
-    User getUserById11(int id);
-    User getUserById12(int id);
-
     int addUser(User user);
 
     int updateUser(User user);

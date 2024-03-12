@@ -3,6 +3,7 @@ package com.netease.cloud.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -25,12 +26,12 @@ public class TestController {
 //        return "hello world";
     }
 
-    @RequestMapping("/hello1")
+    @RequestMapping(value = "/hello1",method = RequestMethod.GET)
     public String hello1() {
         return name;
     }
 
-    @RequestMapping("/hello2")
+    @RequestMapping(value = "/hello2",method = RequestMethod.GET)
     public String hello2() {
         return name;
     }
@@ -44,4 +45,20 @@ public class TestController {
     public String hello4() {
         return name;
     }
+
+    @RequestMapping("/hello5")
+    public String hello5() {
+        return name;
+    }
+
+    @RequestMapping("/hello6")
+    public String hello6() {
+        return name;
+    }
+
+    @RequestMapping("/hello7")
+    public String hello7() {
+        return name;
+    }
+
 }
