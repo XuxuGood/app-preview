@@ -24,8 +24,8 @@ public class UserController {
         return userMapper.allUserList();
     }
 
-    @GetMapping("/getUserById/{id}")
-    public User getUserById(@PathVariable int id) {
+    @GetMapping("/getUserById")
+    public User getUserById(@RequestParam(value = "id") int id) {
         return userMapper.getUserById(id);
     }
 

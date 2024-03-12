@@ -15,6 +15,9 @@ public class Order {
         this.name = name;
     }
 
+    public Order() {
+    }
+
     public int getId() {
         return id;
     }

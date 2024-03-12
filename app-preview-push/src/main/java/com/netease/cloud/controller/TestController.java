@@ -1,10 +1,14 @@
 package com.netease.cloud.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
 
 /**
  * @Author xiaoxuxuy
@@ -18,47 +22,21 @@ public class TestController {
     private String name;
 
     @Autowired
-    private Test test;
+    private Test1 test1;
 
     @RequestMapping("/hello")
     public String hello() {
-        return test.test();
-//        return "hello world";
+        return "hello world";
     }
 
-    @RequestMapping(value = "/hello1",method = RequestMethod.GET)
+    @GetMapping("/hello1")
     public String hello1() {
         return name;
     }
 
-    @RequestMapping(value = "/hello2",method = RequestMethod.GET)
+    @GetMapping("/hello2")
     public String hello2() {
-        return name;
-    }
-
-    @RequestMapping("/hello3")
-    public String hello3() {
-        return name;
-    }
-
-    @RequestMapping("/hello4")
-    public String hello4() {
-        return name;
-    }
-
-    @RequestMapping("/hello5")
-    public String hello5() {
-        return name;
-    }
-
-    @RequestMapping("/hello6")
-    public String hello6() {
-        return name;
-    }
-
-    @RequestMapping("/hello7")
-    public String hello7() {
-        return name;
+        return test1.getName();
     }
 
 }

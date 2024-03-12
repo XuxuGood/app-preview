@@ -7,7 +7,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import org.apache.ibatis.annotations.Mapper;
 import org.hotswap.agent.config.PluginManager;
 import org.hotswap.agent.extension.AutoChoose;
 import org.hotswap.agent.extension.manager.AllExtensionsManager;
@@ -18,6 +17,11 @@ import org.hotswap.agent.util.JsonUtils;
 import java.io.*;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
@@ -117,7 +121,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
 
             if (!isLoaded) {
                 // need to recreate class pool on each swap to avoid stale class definition
-                ClassPool classPool =  new ClassPool() {
+                ClassPool classPool = new ClassPool() {
                     @Override
                     public ClassLoader getClassLoader() {
                         return classLoader;
@@ -126,7 +130,17 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                 classPool.appendSystemPath();
                 classPool.appendClassPath(new LoaderClassPath(classLoader));
 
-                CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(classBytes);
+                // 写入class文件
+                URL resource = classLoader.getResource("");
+                String classPath = Paths.get(Objects.requireNonNull(resource).getPath(), "BOOT-INF", "classes", className.replace('.', '/') + ".class").toString();
+                Path destinationPath = Paths.get(classPath);
+                Files.copy(byteArrayInputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+                // 重置输入流的位置
+                byteArrayInputStream.reset();
+
+                CtClass newCtClass = classPool.makeClass(byteArrayInputStream);
                 Class<?> newClass = newCtClass.toClass();
                 reloadMap.put(newClass, classBytes);
                 afterHandlerMap.put(newClass, classBytes);
