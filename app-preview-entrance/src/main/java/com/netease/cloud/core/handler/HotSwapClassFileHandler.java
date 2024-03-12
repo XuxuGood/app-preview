@@ -120,7 +120,6 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             }
 
             if (!isLoaded) {
-                // need to recreate class pool on each swap to avoid stale class definition
                 ClassPool classPool = new ClassPool() {
                     @Override
                     public ClassLoader getClassLoader() {
