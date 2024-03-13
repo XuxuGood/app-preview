@@ -33,7 +33,7 @@ public class HotSwapEntrance {
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
         // 启动 vertx http 服务
-        Vertx.vertx().deployVerticle(new VertxApplication(inst));
+        Vertx.vertx().deployVerticle(new VertxApplication());
     }
 
     /**

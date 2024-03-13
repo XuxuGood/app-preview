@@ -16,7 +16,12 @@ import org.hotswap.agent.util.JsonUtils;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+
+import static com.netease.cloud.core.handler.HotSwapClassFileHandler.TARGET_CLASS_PATH;
 
 /**
  * @Author xiaoxuxuy
@@ -45,12 +50,18 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
 
             // 获取classloader
             ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
-            if (classLoader == null) {
-                classLoader = Thread.currentThread().getContextClassLoader();
-            }
+
+            String resourcePath;
+            URL classPathResource = classLoader.getResource("");
+            String rootClassPath = Objects.requireNonNull(classPathResource).getPath();
 
             for (BatchModifiedResourceRequest requestResource : requestResourceList) {
-                String resourcePath = requestResource.getPath();
+                if (rootClassPath.endsWith(TARGET_CLASS_PATH)) {
+                    resourcePath = Paths.get(rootClassPath, requestResource.getRelativePath()).toString();
+                } else {
+                    resourcePath = Paths.get(rootClassPath, TARGET_CLASS_PATH, requestResource.getRelativePath()).toString();
+                }
+
                 byte[] resourceBytes = requestResource.getContent().getBytes();
 
                 // 前置处理

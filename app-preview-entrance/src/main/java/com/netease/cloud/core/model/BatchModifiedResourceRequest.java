@@ -7,15 +7,15 @@ package com.netease.cloud.core.model;
  */
 public class BatchModifiedResourceRequest {
 
-    private String path;
+    private String relativePath;
     private String content;
 
-    public String getPath() {
-        return path;
+    public String getRelativePath() {
+        return relativePath;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setRelativePath(String relativePath) {
+        this.relativePath = relativePath;
     }
 
     public String getContent() {

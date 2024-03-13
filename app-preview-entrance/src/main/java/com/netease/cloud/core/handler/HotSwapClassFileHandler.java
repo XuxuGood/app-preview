@@ -35,11 +35,10 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
 
     private final AutoChoose autoChoose;
 
-    private final Instrumentation instrumentation;
+    public static final String TARGET_CLASS_PATH = "BOOT-INF/classes/";
 
-    public HotSwapClassFileHandler(Instrumentation instrumentation) {
+    public HotSwapClassFileHandler() {
         autoChoose = new AutoChoose();
-        this.instrumentation = instrumentation;
     }
 
     @Override
@@ -85,6 +84,10 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                                     Map<Class<?>, byte[]> afterHandlerMap,
                                     List<BatchModifiedClassRequest> requestList,
                                     ClassLoader classLoader) throws IOException, CannotCompileException {
+        String classDestinationPath;
+        URL classPathResource = classLoader.getResource("");
+        String rootClassPath = Objects.requireNonNull(classPathResource).getPath();
+
         for (BatchModifiedClassRequest classRequest : requestList) {
             String className = classRequest.getClassName();
             byte[] classBytes = classRequest.getBytes();
@@ -92,33 +95,19 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             // 热更新前置处理
             autoChoose.preHandle(classLoader, className, classBytes);
 
+            // 是否已经加载过
             boolean isLoaded;
 
-            // 如果不是SprintBoot的类加载器，需要额外处理
-            if (classLoader.getClass().getName().equals("org.springframework.boot.loader.LaunchedURLClassLoader")) {
-                Class<?> clazz;
-                try {
-                    clazz = classLoader.loadClass(className);
-                    reloadMap.put(clazz, classBytes);
-                    afterHandlerMap.put(clazz, classBytes);
-                    isLoaded = true;
-                } catch (ClassNotFoundException e) {
-                    isLoaded = false;
-                }
-            } else {
-                Class<?>[] loadedClasses = instrumentation.getAllLoadedClasses();
-
-                // 判断是否已经加载过该类
-                isLoaded = Arrays.stream(loadedClasses)
-                        .filter(clazz -> clazz.getName().equals(className))
-                        .peek(clazz -> {
-                            reloadMap.put(clazz, classBytes);
-                            afterHandlerMap.put(clazz, classBytes);
-                        })
-                        .findFirst()
-                        .isPresent();
+            try {
+                Class<?> clazz = classLoader.loadClass(className);
+                reloadMap.put(clazz, classBytes);
+                afterHandlerMap.put(clazz, classBytes);
+                isLoaded = true;
+            } catch (ClassNotFoundException e) {
+                isLoaded = false;
             }
 
+            // new class
             if (!isLoaded) {
                 ClassPool classPool = new ClassPool() {
                     @Override
@@ -130,10 +119,15 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                 classPool.appendClassPath(new LoaderClassPath(classLoader));
 
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(classBytes);
+
+                if (rootClassPath.endsWith(TARGET_CLASS_PATH)) {
+                    classDestinationPath = Paths.get(rootClassPath, className.replace('.', '/') + ".class").toString();
+                } else {
+                    classDestinationPath = Paths.get(rootClassPath, TARGET_CLASS_PATH, className.replace('.', '/') + ".class").toString();
+                }
+
+                Path destinationPath = Paths.get(classDestinationPath);
                 // 写入class文件
-                URL resource = classLoader.getResource("");
-                String classPath = Paths.get(Objects.requireNonNull(resource).getPath(), "BOOT-INF", "classes", className.replace('.', '/') + ".class").toString();
-                Path destinationPath = Paths.get(classPath);
                 Files.copy(byteArrayInputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
                 // 重置输入流的位置
