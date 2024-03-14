@@ -21,7 +21,7 @@ public class HotSwapCall {
         // 热更新配置文件
         hotswapResource();
         // 热更新类
-//        hotswapClass();
+        hotswapClass();
     }
 
     private static void hotswapClass() throws IOException {

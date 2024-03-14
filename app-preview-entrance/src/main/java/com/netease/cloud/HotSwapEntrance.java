@@ -4,6 +4,7 @@ import com.netease.cloud.core.config.HotSwapConfiguration;
 import io.vertx.core.Vertx;
 import org.hotswap.agent.HotswapAgent;
 import org.hotswap.agent.logging.AgentLogger;
+import org.hotswap.agent.util.spring.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,18 +41,29 @@ public class HotSwapEntrance {
         // 初始化类路径目录
         initHotswapDir(HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath"));
         // 初始化热部署资源目录
-        initHotswapDir(HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources"));
+        initWatchResourcesDir(HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources"));
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
         // 启动 vertx http 服务
         Vertx.vertx().deployVerticle(new VertxApplication());
     }
 
+    private static void initWatchResourcesDir(String watchResources) {
+        if (StringUtils.isEmpty(watchResources)) {
+            LOGGER.error("缺少 watchResources 配置参数");
+            return;
+        }
+        String[] watchResourceDirs = watchResources.split(",");
+
+        // 初始化热更新资源父级目录
+        initHotswapDir(watchResourceDirs[0]);
+    }
+
     /**
      * 初始热更新目录
      */
     private static void initHotswapDir(String dirPath) {
-        if (dirPath == null || dirPath.isEmpty()) {
+        if (StringUtils.isEmpty(dirPath)) {
             return;
         }
 
