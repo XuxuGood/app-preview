@@ -1,6 +1,8 @@
 package com.netease.cloud.core.handler;
 
 import com.google.gson.reflect.TypeToken;
+import com.netease.cloud.HotSwapEntrance;
+import com.netease.cloud.core.config.HotSwapConfiguration;
 import com.netease.cloud.core.model.BatchModifiedClassRequest;
 import com.netease.cloud.core.model.HotSwapResponse;
 import io.vertx.core.Handler;
@@ -13,9 +15,9 @@ import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.util.JsonUtils;
+import org.hotswap.agent.util.spring.util.StringUtils;
 
 import java.io.*;
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.Files;
@@ -35,10 +37,13 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
 
     private final AutoChoose autoChoose;
 
+    private final String extraClasspath;
+
     public static final String TARGET_CLASS_PATH = "BOOT-INF/classes/";
 
     public HotSwapClassFileHandler() {
         autoChoose = new AutoChoose();
+        extraClasspath = HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath");
     }
 
     @Override
@@ -51,14 +56,14 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
 
             LOGGER.debug("hotswap class request params: {}, to pojo: {}", bodyString, requestList);
 
-            // 获取classloader
-            ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
-
-            Map<Class<?>, byte[]> reloadMap = new LinkedHashMap<>();
-            Map<Class<?>, byte[]> afterHandlerMap = new LinkedHashMap<>();
-
             try {
-                handleHotswapClass(reloadMap, afterHandlerMap, requestList, classLoader);
+                if (!StringUtils.isEmpty(extraClasspath)) {
+                    // 支持jar包形式热更新（外挂classpath）
+                    hotswapByExtraClasspath(requestList);
+                } else {
+                    // 解压jar包形式热更新
+                    hotswapByBootInf(requestList);
+                }
             } catch (Exception e) {
                 LOGGER.error("hotswap class file error", e);
                 HotSwapResponse success = HotSwapResponse.of("hotswap class file error", 400, e.getMessage());
@@ -67,17 +72,78 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                 return;
             }
 
-            // 热更新
-            PluginManager.getInstance().hotswap(reloadMap);
-
-            // 热更新后置处理
-            afterHandlerMap.forEach((aClass, bytes) -> autoChoose.afterHandle(classLoader, aClass, aClass.getName(), bytes));
-
             HotSwapResponse success = HotSwapResponse.success("success, updates(include inner classes)=" + requestList.size());
-
             HttpServerResponse response = routingContext.response();
             response.end(JsonObject.mapFrom(success).toBuffer());
         });
+    }
+
+    private void hotswapByBootInf(List<BatchModifiedClassRequest> requestList) throws IOException, CannotCompileException {
+        // 获取classloader
+        ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
+
+        Map<Class<?>, byte[]> reloadMap = new LinkedHashMap<>();
+        Map<Class<?>, byte[]> afterHandlerMap = new LinkedHashMap<>();
+
+        handleHotswapClass(reloadMap, afterHandlerMap, requestList, classLoader);
+
+        // 热更新
+        PluginManager.getInstance().hotswap(reloadMap);
+
+        // 热更新后置处理
+        afterHandlerMap.forEach((aClass, bytes) -> autoChoose.afterHandle(classLoader, aClass, aClass.getName(), bytes));
+    }
+
+    private void hotswapByExtraClasspath(List<BatchModifiedClassRequest> requestList) throws IOException, CannotCompileException {
+        // 获取classloader
+        ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
+
+        for (BatchModifiedClassRequest classRequest : requestList) {
+            String className = classRequest.getClassName();
+            byte[] classBytes = classRequest.getBytes();
+
+            // 热更新前置处理
+            autoChoose.preHandle(classLoader, className, classBytes);
+
+            Class<?> clazz;
+            try {
+                clazz = classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                // 不存在的Class丢到实际包目录下
+                String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
+                Path destinationPath = Paths.get(classDestinationPath);
+                Files.createDirectories(destinationPath.getParent());
+
+                // 写入class文件
+                Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+                ClassPool classPool = new ClassPool() {
+                    @Override
+                    public ClassLoader getClassLoader() {
+                        return classLoader;
+                    }
+                };
+                classPool.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
+                classPool.appendClassPath(new LoaderClassPath(classLoader));
+                CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
+                clazz = newCtClass.toClass();
+            }
+
+            // 将文件写入到classpath根目录下触发自动热部署
+            // 参考org.hotswap.agent.plugin.hotswapper.HotswapperPlugin.watchReload
+            int lastDotIndex = className.lastIndexOf(".");
+
+            String classDestinationPath = Paths.get(extraClasspath, className.substring(lastDotIndex + 1) + ".class").toString();
+
+            Path destinationPath = Paths.get(classDestinationPath);
+            Files.createDirectories(destinationPath.getParent());
+
+            // 写入class文件
+            Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 热更新后置处理
+            autoChoose.afterHandle(classLoader, clazz, clazz.getName(), classBytes);
+        }
     }
 
     private void handleHotswapClass(Map<Class<?>, byte[]> reloadMap,
@@ -127,6 +193,8 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                 }
 
                 Path destinationPath = Paths.get(classDestinationPath);
+                Files.createDirectories(destinationPath.getParent());
+
                 // 写入class文件
                 Files.copy(byteArrayInputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 

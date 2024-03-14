@@ -1,5 +1,6 @@
 package com.netease.cloud.controller;
 
+import com.netease.cloud.dao.TestMapper;
 import com.netease.cloud.dao.UserMapper;
 import com.netease.cloud.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,22 @@ public class UserController {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private TestMapper testMapper;
 
     @GetMapping("/allUserList")
     public List<User> allUserList() {
         return userMapper.allUserList();
+    }
+
+    @GetMapping("/allUserList1")
+    public List<User> allUserList1() {
+        return testMapper.allUserList1();
+    }
+
+    @GetMapping("/allUserList2")
+    public List<User> allUserList2() {
+        return testMapper.allUserList2();
     }
 
     @GetMapping("/getUserById")

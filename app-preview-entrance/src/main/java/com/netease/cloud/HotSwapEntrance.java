@@ -5,7 +5,13 @@ import io.vertx.core.Vertx;
 import org.hotswap.agent.HotswapAgent;
 import org.hotswap.agent.logging.AgentLogger;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * @Author xiaoxuxuy
@@ -17,6 +23,7 @@ public class HotSwapEntrance {
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotswapAgent.class);
 
     private static String propertiesFilePath;
+    private static boolean existExtraClasspath;
 
     /**
      * 热部署入口
@@ -30,10 +37,54 @@ public class HotSwapEntrance {
         parseArgs(args);
         // 加载配置文件
         HotSwapConfiguration.getInstance().loadConfigurationFile();
+        // 初始化类路径目录
+        initHotswapDir(HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath"));
+        // 初始化热部署资源目录
+        initHotswapDir(HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources"));
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
         // 启动 vertx http 服务
         Vertx.vertx().deployVerticle(new VertxApplication());
+    }
+
+    /**
+     * 初始热更新目录
+     */
+    private static void initHotswapDir(String dirPath) {
+        if (dirPath == null || dirPath.isEmpty()) {
+            return;
+        }
+
+        // 创建目录
+        File directory = new File(dirPath);
+        if (!directory.exists()) {
+            boolean created = directory.mkdirs();
+            if (created) {
+                LOGGER.info(dirPath + " directory created successfully.");
+            }
+        } else {
+            LOGGER.info(dirPath + " directory already exists.");
+            // 删除旧目录内容
+            cleanupDirectory(dirPath);
+        }
+    }
+
+    private static void cleanupDirectory(String cleanDirectory) {
+        Path directory = Paths.get(cleanDirectory);
+
+        try (Stream<Path> walk = Files.walk(directory)) {
+            walk.filter(path -> !path.equals(directory))
+                    .sorted((p1, p2) -> -p1.compareTo(p2))
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -68,6 +119,10 @@ public class HotSwapEntrance {
      */
     public static String getHotSwapConfigFile() {
         return propertiesFilePath;
+    }
+
+    public static boolean isExistExtraClasspath() {
+        return existExtraClasspath;
     }
 
 }

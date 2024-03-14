@@ -1,6 +1,7 @@
 package com.netease.cloud.dao;
 
 import com.netease.cloud.model.Order;
+import com.netease.cloud.model.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,10 +12,10 @@ import java.util.List;
  * @Version: 1.0
  */
 @Repository
-public interface OrderMapper {
+public interface TestMapper {
 
-    List<Order> allOrderList();
-
-    List<Order> allOrderList3();
+    List<User> allUserList();
+    List<User> allUserList1();
+    List<User> allUserList2();
 
 }

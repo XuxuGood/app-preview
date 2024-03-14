@@ -18,8 +18,6 @@
  */
 package org.hotswap.agent.plugin.mybatis;
 
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.session.Configuration;
 import org.hotswap.agent.annotation.*;
 import org.hotswap.agent.command.Command;
 import org.hotswap.agent.command.ReflectionCommand;
@@ -27,18 +25,14 @@ import org.hotswap.agent.command.Scheduler;
 import org.hotswap.agent.config.PluginConfiguration;
 import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
-import org.hotswap.agent.plugin.mybatis.proxy.SpringMybatisConfigurationProxy;
 import org.hotswap.agent.plugin.mybatis.transformers.MyBatisTransformers;
+import org.hotswap.agent.plugin.mybatis.transformers.MybatisXmlChangedCommand;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Reload MyBatis configuration after entity create/change.
@@ -78,12 +72,13 @@ public class MyBatisPlugin {
         }
     }
 
-    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
+    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.CREATE, FileEvent.MODIFY})
     public void registerResourceListeners(URL url) throws UnsupportedEncodingException {
-        String urlPath = URLDecoder.decode(url.getPath(), "UTF-8");
-        if (configurationMap.containsKey(urlPath)) {
-            refresh(500);
-        }
+        scheduler.scheduleCommand(new MybatisXmlChangedCommand(appClassLoader, url, scheduler));
+//        String urlPath = URLDecoder.decode(url.getPath(), "UTF-8");
+//        if (configurationMap.containsKey(urlPath)) {
+//            refresh(500);
+//        }
     }
 
     @OnClassLoadEvent(

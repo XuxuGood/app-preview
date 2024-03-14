@@ -191,6 +191,13 @@ public class MyBatisTransformers {
                         "}" +
                         "}", ctClass);
         ctClass.addMethod(proxyMethod);
+
+         proxyMethod = CtNewMethod.make(
+                "public org.springframework.core.io.Resource[] getMapperLocations() {" +
+                        "return this.mapperLocations;" +
+                        "}", ctClass);
+        ctClass.addMethod(proxyMethod);
+
         LOGGER.debug("org.mybatis.spring.SqlSessionFactoryBean patched.");
     }
 }
