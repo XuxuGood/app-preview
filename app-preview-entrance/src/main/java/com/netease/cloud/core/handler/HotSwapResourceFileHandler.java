@@ -39,11 +39,9 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
 
     private final AutoChoose autoChoose;
     private final String watchResourceParentPath;
-    private final String extraClasspath;
 
     public HotSwapResourceFileHandler() {
         autoChoose = new AutoChoose();
-        extraClasspath = HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath");
         String watchResources = HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources");
         watchResourceParentPath = watchResources.split(",")[0];
     }

@@ -24,7 +24,6 @@ public class HotSwapEntrance {
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotswapAgent.class);
 
     private static String propertiesFilePath;
-    private static boolean existExtraClasspath;
 
     /**
      * 热部署入口
@@ -38,7 +37,7 @@ public class HotSwapEntrance {
         parseArgs(args);
         // 加载配置文件
         HotSwapConfiguration.getInstance().loadConfigurationFile();
-        // 初始化类路径目录
+        // 初始化扩展类路径目录
         initHotswapDir(HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath"));
         // 初始化热部署资源目录
         initWatchResourcesDir(HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources"));
@@ -55,8 +54,9 @@ public class HotSwapEntrance {
         }
         String[] watchResourceDirs = watchResources.split(",");
 
-        // 初始化热更新资源父级目录
-        initHotswapDir(watchResourceDirs[0]);
+        for (String watchResourceDir : watchResourceDirs) {
+            initHotswapDir(watchResourceDir);
+        }
     }
 
     /**
@@ -131,10 +131,6 @@ public class HotSwapEntrance {
      */
     public static String getHotSwapConfigFile() {
         return propertiesFilePath;
-    }
-
-    public static boolean isExistExtraClasspath() {
-        return existExtraClasspath;
     }
 
 }
