@@ -109,7 +109,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             try {
                 clazz = classLoader.loadClass(className);
             } catch (ClassNotFoundException e) {
-                // 不存在的Class丢到实际包目录下
+                // 不存在的Class丢到实际包目录下，类加载会自动去extraClasspath下找
                 String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
                 Path destinationPath = Paths.get(classDestinationPath);
                 Files.createDirectories(destinationPath.getParent());
