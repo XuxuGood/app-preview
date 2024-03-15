@@ -201,17 +201,17 @@ public class MyBatisTransformers {
         LOGGER.debug("org.mybatis.spring.SqlSessionFactoryBean patched.");
     }
 
-//    @OnClassLoadEvent(classNameRegexp = "org.springframework.context.annotation.ClassPathBeanDefinitionScanner")
-//    public static void removeIsCompatibleMethod(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-//        CtMethod isCompatibleMethod = ctClass.getDeclaredMethod("isCompatible");
-//        ctClass.removeMethod(isCompatibleMethod);
-//
-//        isCompatibleMethod = CtNewMethod.make(
-//                "protected boolean isCompatible(org.springframework.beans.factory.config.BeanDefinition newDef, org.springframework.beans.factory.config.BeanDefinition existingDef) {" +
-//                        "return true;" +
-//                        "}", ctClass);
-//        ctClass.addMethod(isCompatibleMethod);
-//
-//        LOGGER.debug("org.springframework.context.annotation.ClassPathBeanDefinitionScanner isCompatibleMethod removed.");
-//    }
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.context.annotation.ClassPathBeanDefinitionScanner")
+    public static void removeIsCompatibleMethod(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod isCompatibleMethod = ctClass.getDeclaredMethod("isCompatible");
+        ctClass.removeMethod(isCompatibleMethod);
+
+        isCompatibleMethod = CtNewMethod.make(
+                "protected boolean isCompatible(org.springframework.beans.factory.config.BeanDefinition newDef, org.springframework.beans.factory.config.BeanDefinition existingDef) {" +
+                        "return true;" +
+                        "}", ctClass);
+        ctClass.addMethod(isCompatibleMethod);
+
+        LOGGER.debug("org.springframework.context.annotation.ClassPathBeanDefinitionScanner isCompatibleMethod removed.");
+    }
 }

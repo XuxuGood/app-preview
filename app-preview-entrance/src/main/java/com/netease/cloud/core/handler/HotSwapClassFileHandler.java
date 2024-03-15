@@ -16,6 +16,7 @@ import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.util.JsonUtils;
 import org.hotswap.agent.util.spring.util.StringUtils;
+import org.hotswap.agent.watch.Watcher;
 import org.hotswap.agent.watch.nio.AbstractNIO2Watcher;
 
 import java.io.*;
@@ -37,6 +38,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotSwapClassFileHandler.class);
 
     private final AutoChoose autoChoose;
+
     private final String extraClasspath;
     private final AbstractNIO2Watcher watcher;
 
@@ -107,33 +109,23 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             // 热更新前置处理
             autoChoose.preHandle(classLoader, className, classBytes);
 
+            // 不存在的Class丢到实际包目录下，类加载会自动去extraClasspath下找
+            String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
+            Path destinationPath = Paths.get(classDestinationPath);
+
+            if (!Files.exists(destinationPath.getParent())) {
+                Files.createDirectories(destinationPath.getParent());
+                // 注册热更新目录监听
+                watcher.addDirectory(Paths.get(extraClasspath));
+            }
+
+            // 写入class文件
+            Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
             Class<?> clazz;
             try {
                 clazz = classLoader.loadClass(className);
-                // 能加载到的Class，则放到热更新根目录
-                int lastDotIndex = className.lastIndexOf(".");
-
-                String classDestinationPath = Paths.get(extraClasspath, className.substring(lastDotIndex + 1) + ".class").toString();
-
-                Path destinationPath = Paths.get(classDestinationPath);
-                Files.createDirectories(destinationPath.getParent());
-
-                // 写入class文件
-                Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (ClassNotFoundException e) {
-                // 不存在的Class丢到实际包目录下，类加载会自动去extraClasspath下找
-                String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
-                Path destinationPath = Paths.get(classDestinationPath);
-
-                if (!Files.exists(destinationPath.getParent())) {
-                    Files.createDirectories(destinationPath.getParent());
-                    // 注册热更新目录监听
-                    watcher.addDirectory(Paths.get(extraClasspath));
-                }
-
-                // 写入class文件
-                Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
-
                 ClassPool classPool = new ClassPool() {
                     @Override
                     public ClassLoader getClassLoader() {
