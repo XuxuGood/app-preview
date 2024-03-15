@@ -123,7 +123,7 @@ public class SpringPlugin {
         }
     }
 
-//    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
+    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
     public void registerResourceListeners(URL url) {
         scheduler.scheduleCommand(new XmlsChangedCommand(appClassLoader, url, scheduler));
         LOGGER.trace("Scheduling Spring reload for XML '{}'", url);
