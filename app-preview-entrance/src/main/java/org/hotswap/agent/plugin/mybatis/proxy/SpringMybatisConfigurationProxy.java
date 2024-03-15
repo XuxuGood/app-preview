@@ -49,6 +49,10 @@ public class SpringMybatisConfigurationProxy {
         }
 
         Resource[] resources = (Resource[]) ReflectionHelper.invoke(this.sqlSessionFactoryBean, "getMapperLocations");
+        if (resources == null) {
+            resources = new Resource[0];
+        }
+
         List<Resource> oldResourceList = new ArrayList<>(Arrays.asList(resources));
 
         // 迭代移除已经存在的xml文件

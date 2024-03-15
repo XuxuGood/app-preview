@@ -49,7 +49,6 @@ public class HotSwapEntrance {
 
     private static void initWatchResourcesDir(String watchResources) {
         if (StringUtils.isEmpty(watchResources)) {
-            LOGGER.error("缺少 watchResources 配置参数");
             return;
         }
         String[] watchResourceDirs = watchResources.split(",");

@@ -38,12 +38,11 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotSwapClassFileHandler.class);
 
     private final AutoChoose autoChoose;
-    private final String watchResourceParentPath;
+    private final String extraClasspath;
 
     public HotSwapResourceFileHandler() {
         autoChoose = new AutoChoose();
-        String watchResources = HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources");
-        watchResourceParentPath = watchResources.split(",")[0];
+        extraClasspath = HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath");
     }
 
     @Override
@@ -64,9 +63,9 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
             String rootClassPath = Objects.requireNonNull(classPathResource).getPath();
 
             for (BatchModifiedResourceRequest requestResource : requestResourceList) {
-                if (!StringUtils.isEmpty(watchResourceParentPath)) {
+                if (!StringUtils.isEmpty(extraClasspath)) {
                     // 支持
-                    resourcePath = Paths.get(watchResourceParentPath, requestResource.getRelativePath()).toString();
+                    resourcePath = Paths.get(extraClasspath, requestResource.getRelativePath()).toString();
                 } else {
                     // 解压jar包形式热更新
                     if (rootClassPath.endsWith(TARGET_CLASS_PATH)) {
