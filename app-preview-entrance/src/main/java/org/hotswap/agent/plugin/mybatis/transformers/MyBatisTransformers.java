@@ -135,7 +135,7 @@ public class MyBatisTransformers {
     @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.defaults.DefaultSqlSessionFactory")
     public static void patchDefaultSqlSessionFactory(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         ctClass.addField(CtField.make("public static java.util.ArrayList  _staticConfiguration = new java.util.ArrayList();", ctClass));
-        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[] { classPool.get("org.apache.ibatis.session.Configuration")});
+        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{classPool.get("org.apache.ibatis.session.Configuration")});
         constructor.insertAfter("{_staticConfiguration.add($1);}");
         LOGGER.debug("org.apache.ibatis.session.defaults.DefaultSqlSessionFactory patched.");
     }
@@ -192,7 +192,7 @@ public class MyBatisTransformers {
                         "}", ctClass);
         ctClass.addMethod(proxyMethod);
 
-         proxyMethod = CtNewMethod.make(
+        proxyMethod = CtNewMethod.make(
                 "public org.springframework.core.io.Resource[] getMapperLocations() {" +
                         "return this.mapperLocations;" +
                         "}", ctClass);
@@ -200,4 +200,18 @@ public class MyBatisTransformers {
 
         LOGGER.debug("org.mybatis.spring.SqlSessionFactoryBean patched.");
     }
+
+//    @OnClassLoadEvent(classNameRegexp = "org.springframework.context.annotation.ClassPathBeanDefinitionScanner")
+//    public static void removeIsCompatibleMethod(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+//        CtMethod isCompatibleMethod = ctClass.getDeclaredMethod("isCompatible");
+//        ctClass.removeMethod(isCompatibleMethod);
+//
+//        isCompatibleMethod = CtNewMethod.make(
+//                "protected boolean isCompatible(org.springframework.beans.factory.config.BeanDefinition newDef, org.springframework.beans.factory.config.BeanDefinition existingDef) {" +
+//                        "return true;" +
+//                        "}", ctClass);
+//        ctClass.addMethod(isCompatibleMethod);
+//
+//        LOGGER.debug("org.springframework.context.annotation.ClassPathBeanDefinitionScanner isCompatibleMethod removed.");
+//    }
 }

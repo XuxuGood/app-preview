@@ -16,6 +16,7 @@ import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.util.JsonUtils;
 import org.hotswap.agent.util.spring.util.StringUtils;
+import org.hotswap.agent.watch.nio.AbstractNIO2Watcher;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -36,13 +37,14 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
     private static final AgentLogger LOGGER = AgentLogger.getLogger(HotSwapClassFileHandler.class);
 
     private final AutoChoose autoChoose;
-
     private final String extraClasspath;
+    private final AbstractNIO2Watcher watcher;
 
     public static final String TARGET_CLASS_PATH = "BOOT-INF/classes/";
 
     public HotSwapClassFileHandler() {
         autoChoose = new AutoChoose();
+        watcher = (AbstractNIO2Watcher) PluginManager.getInstance().getWatcher();
         extraClasspath = HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath");
     }
 
@@ -108,11 +110,26 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             Class<?> clazz;
             try {
                 clazz = classLoader.loadClass(className);
+                // 能加载到的Class，则放到热更新根目录
+                int lastDotIndex = className.lastIndexOf(".");
+
+                String classDestinationPath = Paths.get(extraClasspath, className.substring(lastDotIndex + 1) + ".class").toString();
+
+                Path destinationPath = Paths.get(classDestinationPath);
+                Files.createDirectories(destinationPath.getParent());
+
+                // 写入class文件
+                Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (ClassNotFoundException e) {
                 // 不存在的Class丢到实际包目录下，类加载会自动去extraClasspath下找
                 String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
                 Path destinationPath = Paths.get(classDestinationPath);
-                Files.createDirectories(destinationPath.getParent());
+
+                if (!Files.exists(destinationPath.getParent())) {
+                    Files.createDirectories(destinationPath.getParent());
+                    // 注册热更新目录监听
+                    watcher.addDirectory(Paths.get(extraClasspath));
+                }
 
                 // 写入class文件
                 Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
@@ -128,18 +145,6 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                 CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
                 clazz = newCtClass.toClass();
             }
-
-            // 将文件写入到classpath根目录下触发自动热部署
-            // 参考org.hotswap.agent.plugin.hotswapper.HotswapperPlugin.watchReload
-            int lastDotIndex = className.lastIndexOf(".");
-
-            String classDestinationPath = Paths.get(extraClasspath, className.substring(lastDotIndex + 1) + ".class").toString();
-
-            Path destinationPath = Paths.get(classDestinationPath);
-            Files.createDirectories(destinationPath.getParent());
-
-            // 写入class文件
-            Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
             // 热更新后置处理
             autoChoose.afterHandle(classLoader, clazz, clazz.getName(), classBytes);

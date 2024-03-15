@@ -10,11 +10,13 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import org.hotswap.agent.config.PluginManager;
 import org.hotswap.agent.extension.AutoChoose;
 import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.util.JsonUtils;
 import org.hotswap.agent.util.spring.util.StringUtils;
+import org.hotswap.agent.watch.nio.AbstractNIO2Watcher;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,9 +41,11 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
 
     private final AutoChoose autoChoose;
     private final String extraClasspath;
+    private final AbstractNIO2Watcher watcher;
 
     public HotSwapResourceFileHandler() {
         autoChoose = new AutoChoose();
+        watcher = (AbstractNIO2Watcher) PluginManager.getInstance().getWatcher();
         extraClasspath = HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath");
     }
 
@@ -83,7 +87,12 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
                 // 将content内容写进path文件中
                 try {
                     Path destinationPath = Paths.get(resourcePath);
-                    Files.createDirectories(destinationPath.getParent());
+
+                    if (!Files.exists(destinationPath.getParent())) {
+                        Files.createDirectories(destinationPath.getParent());
+                        // 注册热更新目录监听
+                        watcher.addDirectory(Paths.get(extraClasspath));
+                    }
 
                     try (FileOutputStream fos = new FileOutputStream(resourcePath)) {
                         // 将content内容写入到文件中
