@@ -18,7 +18,7 @@ public class Test {
     private String name;
 
     @Bean
-    public Test1 test1() {
+    public Test1 newTest1() {
         return new Test1(name);
     }
 

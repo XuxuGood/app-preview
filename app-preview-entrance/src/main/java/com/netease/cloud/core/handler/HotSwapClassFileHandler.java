@@ -109,19 +109,6 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             // 热更新前置处理
             autoChoose.preHandle(classLoader, className, classBytes);
 
-            // 不存在的Class丢到实际包目录下，类加载会自动去extraClasspath下找
-            String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
-            Path destinationPath = Paths.get(classDestinationPath);
-
-            if (!Files.exists(destinationPath.getParent())) {
-                Files.createDirectories(destinationPath.getParent());
-                // 注册热更新目录监听
-                watcher.addDirectory(Paths.get(extraClasspath));
-            }
-
-            // 写入class文件
-            Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
-
             Class<?> clazz;
             try {
                 clazz = classLoader.loadClass(className);
@@ -137,6 +124,18 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                 CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
                 clazz = newCtClass.toClass();
             }
+
+            String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
+            Path destinationPath = Paths.get(classDestinationPath);
+
+            if (!Files.exists(destinationPath.getParent())) {
+                Files.createDirectories(destinationPath.getParent());
+                // 注册热更新目录监听
+                watcher.addDirectory(Paths.get(extraClasspath));
+            }
+
+            // 写入class文件
+            Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
             // 热更新后置处理
             autoChoose.afterHandle(classLoader, clazz, clazz.getName(), classBytes);

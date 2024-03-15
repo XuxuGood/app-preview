@@ -20,6 +20,7 @@ package org.hotswap.agent.plugin.mybatis.transformers;
 
 import org.apache.ibatis.javassist.bytecode.AccessFlag;
 import org.hotswap.agent.annotation.OnClassLoadEvent;
+import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.mybatis.MyBatisPlugin;
@@ -212,6 +213,37 @@ public class MyBatisTransformers {
                         "}", ctClass);
         ctClass.addMethod(isCompatibleMethod);
 
-        LOGGER.debug("org.springframework.context.annotation.ClassPathBeanDefinitionScanner isCompatibleMethod removed.");
+        LOGGER.debug("org.springframework.context.annotation.ClassPathBeanDefinitionScanner isCompatibleMethod updated.");
+    }
+
+    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.type.TypeAliasRegistry")
+    public static void updateRegisterAlias(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod registerAlias = ctClass.getDeclaredMethod("registerAlias", new CtClass[]{
+                classPool.get(String.class.getName()),
+                classPool.get(Class.class.getName()),
+        });
+
+        registerAlias.setBody("{"
+                + "if ($1 == null) {"
+                + "    throw new org.apache.ibatis.type.TypeException(\"The parameter alias cannot be null\");"
+                + "}"
+                + "String key = $1.toLowerCase(java.util.Locale.ENGLISH);"
+                + "typeAliases.put(key, $2);"
+                + "}");
+
+        LOGGER.debug("org.apache.ibatis.type.TypeAliasRegistry updateRegisterAlias updated.");
+    }
+
+    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.io.ClassLoaderWrapper")
+    public static void updateGetClassLoaders(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod registerAlias = ctClass.getDeclaredMethod("getClassLoaders", new CtClass[]{
+                classPool.get(ClassLoader.class.getName())
+        });
+
+        registerAlias.setBody("{"
+                + "return new java.lang.ClassLoader[] { org.hotswap.agent.extension.manager.AllExtensionsManager.getInstance().getClassLoader(), $1, defaultClassLoader, java.lang.Thread.currentThread().getContextClassLoader(), getClass().getClassLoader(), systemClassLoader };"
+                + "}");
+
+        LOGGER.debug("org.apache.ibatis.type.TypeAliasRegistry updateRegisterAlias updated.");
     }
 }

@@ -16,8 +16,7 @@
         select * from user;
     </select>
 
-    <select id="allUserList2" resultMap="BaseResultMap">
+    <select id="allUserList6" resultMap="BaseResultMap">
         select * from user;
     </select>
-
 </mapper>
