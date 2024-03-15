@@ -39,4 +39,9 @@ public class TestController {
         return test1.getName();
     }
 
+    @GetMapping("/hello3")
+    public String hello3() {
+        return test1.getName();
+    }
+
 }

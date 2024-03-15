@@ -9,7 +9,7 @@
         <result column="pwd" jdbcType="VARCHAR" property="pwd"/>
     </resultMap>
     <select id="allUserList" resultMap="BaseResultMap">
-        select * from user;
+        select * from user1;
     </select>
 
     <select id="getUserById" resultMap="BaseResultMap">
