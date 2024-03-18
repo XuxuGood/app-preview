@@ -492,12 +492,7 @@ public class SpringBeanReload {
             }
             if (beanDefinition.isSingleton()) {
                 try {
-                    // 暂不处理 ScannedGenericBeanDefinition
-                    if (beanDefinition instanceof ScannedGenericBeanDefinition) {
-                        LOGGER.debug("skipp to get bean: " + beanName);
-                    } else {
-                        beanFactory.getBean(beanName);
-                    }
+                    beanFactory.getBean(beanName);
                 } catch (Exception e) {
                     LOGGER.error("Failed to get bean: " + beanName, e);
                 }

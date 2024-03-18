@@ -41,14 +41,12 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
 
     private final AutoChoose autoChoose;
     private final String extraClasspath;
-    private final String watchResources;
     private final AbstractNIO2Watcher watcher;
 
     public HotSwapResourceFileHandler() {
         autoChoose = new AutoChoose();
         watcher = (AbstractNIO2Watcher) PluginManager.getInstance().getWatcher();
         extraClasspath = HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath");
-        watchResources = HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources");
     }
 
     @Override
@@ -69,9 +67,9 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
             String rootClassPath = Objects.requireNonNull(classPathResource).getPath();
 
             for (BatchModifiedResourceRequest requestResource : requestResourceList) {
-                if (!StringUtils.isEmpty(watchResources)) {
+                if (!StringUtils.isEmpty(extraClasspath)) {
                     // 支持
-                    resourcePath = Paths.get(watchResources, requestResource.getRelativePath()).toString();
+                    resourcePath = Paths.get(extraClasspath, requestResource.getRelativePath()).toString();
                 } else {
                     // 解压jar包形式热更新
                     if (rootClassPath.endsWith(TARGET_CLASS_PATH)) {

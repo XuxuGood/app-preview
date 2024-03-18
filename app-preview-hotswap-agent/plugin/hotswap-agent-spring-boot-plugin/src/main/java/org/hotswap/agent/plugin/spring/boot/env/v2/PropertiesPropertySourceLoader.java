@@ -22,15 +22,10 @@ import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.plugin.spring.boot.env.BasePropertiesPropertySourceLoader;
 import org.hotswap.agent.plugin.spring.boot.env.ListPropertySourceReloader;
 import org.hotswap.agent.util.ReflectionHelper;
-import org.springframework.boot.env.OriginTrackedMapPropertySource;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
 public class PropertiesPropertySourceLoader extends BasePropertiesPropertySourceLoader<List<Map<String, ?>>> {
@@ -38,22 +33,15 @@ public class PropertiesPropertySourceLoader extends BasePropertiesPropertySource
     private static AgentLogger LOGGER = AgentLogger.getLogger(PropertiesPropertySourceLoader.class);
 
     private org.springframework.boot.env.PropertiesPropertySourceLoader propertiesPropertySourceLoader;
+    private Resource resource;
 
-    private static Resource resource;
 
     public PropertiesPropertySourceLoader(
             org.springframework.boot.env.PropertiesPropertySourceLoader propertiesPropertySourceLoader,
             String name, Resource resource) {
         super(new ListPropertySourceReloader(name, resource));
         this.propertiesPropertySourceLoader = propertiesPropertySourceLoader;
-        PropertiesPropertySourceLoader.resource = resource;
-    }
-
-    public static void setResource(String resourcePath) {
-        String filename = resource.getFilename();
-        if (resourcePath.endsWith(Objects.requireNonNull(filename))) {
-            PropertiesPropertySourceLoader.resource = new FileSystemResource(resourcePath);
-        }
+        this.resource = resource;
     }
 
     /**

@@ -138,12 +138,6 @@ public class SpringPlugin {
 
     @OnResourceFileEvent(path = "/", filter = ".*.properties", events = {FileEvent.MODIFY})
     public void registerPropertiesListeners(URL url) throws IOException, NoSuchMethodException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
-        Class<?> clazz = Class.forName("org.hotswap.agent.plugin.spring.boot.env.v2.PropertiesPropertySourceLoader", true, appClassLoader);
-        Method method = clazz.getDeclaredMethod(
-                "setResource", String.class);
-        method.invoke(null, URLDecoder.decode(url.getPath(), "UTF-8"));
-//        PropertiesPropertySourceLoader.setResource(URLDecoder.decode(url.getPath(), "UTF-8"));
-
         scheduler.scheduleCommand(new PropertiesChangedCommand(appClassLoader, url, scheduler));
         LOGGER.trace("Scheduling Spring reload for properties '{}'", url);
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
