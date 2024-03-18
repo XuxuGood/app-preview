@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2023 the HotswapAgent authors.
+ * Copyright 2013-2024 the HotswapAgent authors.
  *
  * This file is part of HotswapAgent.
  *
@@ -63,8 +63,9 @@ public class SpringChangesAnalyzer {
             LOGGER.error("Error analyzing class {} for reload necessity. Defaulting to yes.", e,
                     classBeingRedefined.getName());
         } finally {
-            if (makeClass != null)
+            if (makeClass != null) {
                 makeClass.detach();
+            }
         }
         return true;
     }
@@ -77,5 +78,4 @@ public class SpringChangesAnalyzer {
                 || classBeingRedefined.getSimpleName().contains("$HibernateProxy$")
                 ;
     }
-
 }
