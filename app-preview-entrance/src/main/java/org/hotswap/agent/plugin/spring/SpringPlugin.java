@@ -137,7 +137,7 @@ public class SpringPlugin {
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
     }
 
-    @OnResourceFileEvent(path = "/", filter = ".*.yaml", events = {FileEvent.MODIFY})
+    @OnResourceFileEvent(path = "/", filter = ".*.(yaml|yml)", events = {FileEvent.MODIFY})
     public void registerYamlListeners(URL url) {
         scheduler.scheduleCommand(new YamlChangedCommand(appClassLoader, url, scheduler));
         // schedule reload after 1000 milliseconds
