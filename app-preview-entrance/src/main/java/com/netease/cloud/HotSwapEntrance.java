@@ -40,7 +40,7 @@ public class HotSwapEntrance {
         // 初始化扩展类路径目录
         initHotswapDir(HotSwapConfiguration.getInstance().getProperties().getProperty("extraClasspath"));
         // 初始化热部署资源目录
-        initWatchResourcesDir(HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources"));
+//        initWatchResourcesDir(HotSwapConfiguration.getInstance().getProperties().getProperty("watchResources"));
         // 启动热部署agent
         HotswapAgent.agentmain(args, inst);
         // 启动 vertx http 服务

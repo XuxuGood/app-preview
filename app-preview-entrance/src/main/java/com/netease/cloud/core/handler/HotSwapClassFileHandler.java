@@ -119,7 +119,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
                         return classLoader;
                     }
                 };
-                classPool.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
+                classPool.appendSystemPath();
                 classPool.appendClassPath(new LoaderClassPath(classLoader));
                 CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
                 clazz = newCtClass.toClass();

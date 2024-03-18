@@ -19,7 +19,11 @@
 package org.hotswap.agent.plugin.spring;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -33,8 +37,10 @@ import org.hotswap.agent.annotation.OnResourceFileEvent;
 import org.hotswap.agent.annotation.Plugin;
 import org.hotswap.agent.command.Scheduler;
 import org.hotswap.agent.config.PluginConfiguration;
+import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
+import org.hotswap.agent.plugin.spring.boot.env.v2.PropertiesPropertySourceLoader;
 import org.hotswap.agent.plugin.spring.core.BeanDefinitionProcessor;
 import org.hotswap.agent.plugin.spring.reload.ClassChangedCommand;
 import org.hotswap.agent.plugin.spring.reload.PropertiesChangedCommand;
@@ -123,7 +129,7 @@ public class SpringPlugin {
         }
     }
 
-//    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
+    //    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
     public void registerResourceListeners(URL url) {
         scheduler.scheduleCommand(new XmlsChangedCommand(appClassLoader, url, scheduler));
         LOGGER.trace("Scheduling Spring reload for XML '{}'", url);
@@ -131,7 +137,13 @@ public class SpringPlugin {
     }
 
     @OnResourceFileEvent(path = "/", filter = ".*.properties", events = {FileEvent.MODIFY})
-    public void registerPropertiesListeners(URL url) {
+    public void registerPropertiesListeners(URL url) throws IOException, NoSuchMethodException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
+        Class<?> clazz = Class.forName("org.hotswap.agent.plugin.spring.boot.env.v2.PropertiesPropertySourceLoader", true, appClassLoader);
+        Method method = clazz.getDeclaredMethod(
+                "setResource", String.class);
+        method.invoke(null, URLDecoder.decode(url.getPath(), "UTF-8"));
+//        PropertiesPropertySourceLoader.setResource(URLDecoder.decode(url.getPath(), "UTF-8"));
+
         scheduler.scheduleCommand(new PropertiesChangedCommand(appClassLoader, url, scheduler));
         LOGGER.trace("Scheduling Spring reload for properties '{}'", url);
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
