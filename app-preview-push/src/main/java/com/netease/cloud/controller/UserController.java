@@ -21,6 +21,8 @@ public class UserController {
     private UserMapper userMapper;
     @Autowired
     private TestMapper testMapper;
+    @Autowired
+    private Test3 test3;
 
     @GetMapping("/allUserList")
     public List<User> allUserList() {
@@ -29,6 +31,17 @@ public class UserController {
 
     @GetMapping("/allUserList1")
     public List<User> allUserList1() {
+        return testMapper.allUserList1();
+    }
+
+    @GetMapping("/allUserList3")
+    public List<User> allUserList3() {
+        return testMapper.allUserList1();
+    }
+
+    @GetMapping("/allUserList4")
+    public List<User> allUserList4() {
+        System.out.println(test3.test3());
         return testMapper.allUserList1();
     }
 

@@ -3,10 +3,7 @@ package com.netease.cloud.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -21,6 +18,9 @@ public class TestController {
     @Value(value = "${hotswap.name}")
     private String name;
 
+    @Value(value = "${hotswap.name1}")
+    private String name1;
+
     @Autowired
     private Test1 test1;
 
@@ -31,7 +31,7 @@ public class TestController {
 
     @GetMapping("/hello1")
     public String hello1() {
-        return name;
+        return name1;
     }
 
     @GetMapping("/hello2")
@@ -42,6 +42,22 @@ public class TestController {
     @GetMapping("/hello3")
     public String hello3() {
         return test1.getName();
+    }
+
+
+    @GetMapping("/hello4/{id}")
+    public String hello4(@PathVariable String id) {
+        return id;
+    }
+
+    @GetMapping("/hello5")
+    public String hello5() {
+        return "id";
+    }
+
+    @GetMapping("/hello6")
+    public String hello5(@RequestParam String id) {
+        return id;
     }
 
 }
