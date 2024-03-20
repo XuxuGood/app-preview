@@ -1,9 +1,7 @@
 package com.netease.cloud.core.handler;
 
 import com.google.gson.reflect.TypeToken;
-import com.netease.cloud.HotSwapEntrance;
 import com.netease.cloud.core.config.HotSwapConfiguration;
-import com.netease.cloud.core.model.BatchModifiedClassRequest;
 import com.netease.cloud.core.model.BatchModifiedResourceRequest;
 import com.netease.cloud.core.model.HotSwapResponse;
 import io.vertx.core.Handler;
@@ -15,20 +13,15 @@ import org.hotswap.agent.extension.AutoChoose;
 import org.hotswap.agent.extension.manager.AllExtensionsManager;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.util.JsonUtils;
-import org.hotswap.agent.util.spring.util.StringUtils;
 import org.hotswap.agent.watch.nio.AbstractNIO2Watcher;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
-
-import static com.netease.cloud.core.handler.HotSwapClassFileHandler.TARGET_CLASS_PATH;
 
 /**
  * @Author xiaoxuxuy
@@ -62,22 +55,8 @@ public class HotSwapResourceFileHandler implements Handler<RoutingContext> {
             // 获取classloader
             ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
 
-            String resourcePath;
-            URL classPathResource = classLoader.getResource("");
-            String rootClassPath = Objects.requireNonNull(classPathResource).getPath();
-
             for (BatchModifiedResourceRequest requestResource : requestResourceList) {
-                if (!StringUtils.isEmpty(extraClasspath)) {
-                    // 支持
-                    resourcePath = Paths.get(extraClasspath, requestResource.getRelativePath()).toString();
-                } else {
-                    // 解压jar包形式热更新
-                    if (rootClassPath.endsWith(TARGET_CLASS_PATH)) {
-                        resourcePath = Paths.get(rootClassPath, requestResource.getRelativePath()).toString();
-                    } else {
-                        resourcePath = Paths.get(rootClassPath, TARGET_CLASS_PATH, requestResource.getRelativePath()).toString();
-                    }
-                }
+                String resourcePath = Paths.get(extraClasspath, requestResource.getRelativePath()).toString();
 
                 byte[] resourceBytes = requestResource.getContent().getBytes();
 

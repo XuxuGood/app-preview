@@ -21,8 +21,6 @@ public class UserController {
     private UserMapper userMapper;
     @Autowired
     private TestMapper testMapper;
-    @Autowired
-    private Test3 test3;
 
     @GetMapping("/allUserList")
     public List<User> allUserList() {
@@ -39,12 +37,6 @@ public class UserController {
         return testMapper.allUserList1();
     }
 
-    @GetMapping("/allUserList4")
-    public List<User> allUserList4() {
-        System.out.println(test3.test3());
-        return testMapper.allUserList1();
-    }
-
     @GetMapping("/allUserList2")
     public List<User> allUserList2() {
         return testMapper.allUserList2();
@@ -58,7 +50,7 @@ public class UserController {
     @PostMapping("/addUser")
     public String addUser() {
         userMapper.addUser(new User("Lucy" + UUID.randomUUID(), UUID.randomUUID().toString()));
-        return "用户添加成功...";
+        return "用户添加成功....";
     }
 
     @PostMapping("/updateUser/{id}")

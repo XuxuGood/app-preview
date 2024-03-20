@@ -1,7 +1,6 @@
 package com.netease.cloud.core.handler;
 
 import com.google.gson.reflect.TypeToken;
-import com.netease.cloud.HotSwapEntrance;
 import com.netease.cloud.core.config.HotSwapConfiguration;
 import com.netease.cloud.core.model.BatchModifiedClassRequest;
 import com.netease.cloud.core.model.HotSwapResponse;
@@ -12,21 +11,19 @@ import io.vertx.ext.web.RoutingContext;
 import org.hotswap.agent.config.PluginManager;
 import org.hotswap.agent.extension.AutoChoose;
 import org.hotswap.agent.extension.manager.AllExtensionsManager;
-import org.hotswap.agent.javassist.*;
 import org.hotswap.agent.logging.AgentLogger;
 import org.hotswap.agent.util.JsonUtils;
-import org.hotswap.agent.util.spring.util.StringUtils;
-import org.hotswap.agent.watch.Watcher;
 import org.hotswap.agent.watch.nio.AbstractNIO2Watcher;
+import com.netease.cloud.core.utils.ClassHelper;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+
 
 /**
  * @Author xiaoxuxuy
@@ -40,9 +37,8 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
     private final AutoChoose autoChoose;
 
     private final String extraClasspath;
-    private final AbstractNIO2Watcher watcher;
 
-    public static final String TARGET_CLASS_PATH = "BOOT-INF/classes/";
+    private final AbstractNIO2Watcher watcher;
 
     public HotSwapClassFileHandler() {
         autoChoose = new AutoChoose();
@@ -61,13 +57,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             LOGGER.debug("hotswap class request params: {}, to pojo: {}", bodyString, requestList);
 
             try {
-                if (!StringUtils.isEmpty(extraClasspath)) {
-                    // 支持jar包形式热更新（外挂classpath）
-                    hotswapByExtraClasspath(requestList);
-                } else {
-                    // 解压jar包形式热更新
-                    hotswapByBootInf(requestList);
-                }
+                hotswap(requestList);
             } catch (Exception e) {
                 LOGGER.error("hotswap class file error", e);
                 HotSwapResponse success = HotSwapResponse.of("hotswap class file error", 400, e.getMessage());
@@ -82,23 +72,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
         });
     }
 
-    private void hotswapByBootInf(List<BatchModifiedClassRequest> requestList) throws IOException, CannotCompileException {
-        // 获取classloader
-        ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
-
-        Map<Class<?>, byte[]> reloadMap = new LinkedHashMap<>();
-        Map<Class<?>, byte[]> afterHandlerMap = new LinkedHashMap<>();
-
-        handleHotswapClass(reloadMap, afterHandlerMap, requestList, classLoader);
-
-        // 热更新
-        PluginManager.getInstance().hotswap(reloadMap);
-
-        // 热更新后置处理
-        afterHandlerMap.forEach((aClass, bytes) -> autoChoose.afterHandle(classLoader, aClass, aClass.getName(), bytes));
-    }
-
-    private void hotswapByExtraClasspath(List<BatchModifiedClassRequest> requestList) throws IOException, CannotCompileException {
+    private void hotswap(List<BatchModifiedClassRequest> requestList) throws IOException {
         // 获取classloader
         ClassLoader classLoader = AllExtensionsManager.getInstance().getClassLoader();
 
@@ -109,21 +83,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             // 热更新前置处理
             autoChoose.preHandle(classLoader, className, classBytes);
 
-            Class<?> clazz;
-            try {
-                clazz = classLoader.loadClass(className);
-            } catch (ClassNotFoundException e) {
-                ClassPool classPool = new ClassPool() {
-                    @Override
-                    public ClassLoader getClassLoader() {
-                        return classLoader;
-                    }
-                };
-                classPool.appendSystemPath();
-                classPool.appendClassPath(new LoaderClassPath(classLoader));
-                CtClass newCtClass = classPool.makeClass(new ByteArrayInputStream(classBytes));
-                clazz = newCtClass.toClass();
-            }
+            Class<?> clazz = ClassHelper.loadClass(classLoader, className, classBytes);
 
             String classDestinationPath = Paths.get(extraClasspath, className.replace('.', '/') + ".class").toString();
             Path destinationPath = Paths.get(classDestinationPath);
@@ -138,70 +98,7 @@ public class HotSwapClassFileHandler implements Handler<RoutingContext> {
             Files.copy(new ByteArrayInputStream(classBytes), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
             // 热更新后置处理
-            autoChoose.afterHandle(classLoader, clazz, clazz.getName(), classBytes);
-        }
-    }
-
-    private void handleHotswapClass(Map<Class<?>, byte[]> reloadMap,
-                                    Map<Class<?>, byte[]> afterHandlerMap,
-                                    List<BatchModifiedClassRequest> requestList,
-                                    ClassLoader classLoader) throws IOException, CannotCompileException {
-        String classDestinationPath;
-        URL classPathResource = classLoader.getResource("");
-        String rootClassPath = Objects.requireNonNull(classPathResource).getPath();
-
-        for (BatchModifiedClassRequest classRequest : requestList) {
-            String className = classRequest.getClassName();
-            byte[] classBytes = classRequest.getBytes();
-
-            // 热更新前置处理
-            autoChoose.preHandle(classLoader, className, classBytes);
-
-            // 是否已经加载过
-            boolean isLoaded;
-
-            try {
-                Class<?> clazz = classLoader.loadClass(className);
-                reloadMap.put(clazz, classBytes);
-                afterHandlerMap.put(clazz, classBytes);
-                isLoaded = true;
-            } catch (ClassNotFoundException e) {
-                isLoaded = false;
-            }
-
-            // new class
-            if (!isLoaded) {
-                ClassPool classPool = new ClassPool() {
-                    @Override
-                    public ClassLoader getClassLoader() {
-                        return classLoader;
-                    }
-                };
-                classPool.appendSystemPath();
-                classPool.appendClassPath(new LoaderClassPath(classLoader));
-
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(classBytes);
-
-                if (rootClassPath.endsWith(TARGET_CLASS_PATH)) {
-                    classDestinationPath = Paths.get(rootClassPath, className.replace('.', '/') + ".class").toString();
-                } else {
-                    classDestinationPath = Paths.get(rootClassPath, TARGET_CLASS_PATH, className.replace('.', '/') + ".class").toString();
-                }
-
-                Path destinationPath = Paths.get(classDestinationPath);
-                Files.createDirectories(destinationPath.getParent());
-
-                // 写入class文件
-                Files.copy(byteArrayInputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-
-                // 重置输入流的位置
-                byteArrayInputStream.reset();
-
-                CtClass newCtClass = classPool.makeClass(byteArrayInputStream);
-                Class<?> newClass = newCtClass.toClass();
-                reloadMap.put(newClass, classBytes);
-                afterHandlerMap.put(newClass, classBytes);
-            }
+            autoChoose.afterHandle(classLoader, clazz, classDestinationPath, classBytes);
         }
     }
 

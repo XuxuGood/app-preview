@@ -18,9 +18,6 @@ public class TestController {
     @Value(value = "${hotswap.name}")
     private String name;
 
-    @Value(value = "${hotswap.name1}")
-    private String name1;
-
     @Autowired
     private Test1 test1;
 
@@ -31,7 +28,7 @@ public class TestController {
 
     @GetMapping("/hello1")
     public String hello1() {
-        return name1;
+        return name;
     }
 
     @GetMapping("/hello2")
