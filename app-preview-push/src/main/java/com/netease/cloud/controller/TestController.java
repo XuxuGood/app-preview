@@ -39,25 +39,4 @@ public class TestController {
         return test1.getName();
     }
 
-    @GetMapping("/hello3")
-    public String hello3() {
-        return test1.getName();
-    }
-
-
-    @GetMapping("/hello4/{id}")
-    public String hello4(@PathVariable String id) {
-        return id;
-    }
-
-    @GetMapping("/hello5")
-    public String hello5() {
-        return "id";
-    }
-
-    @GetMapping("/hello6")
-    public String hello5(@RequestParam String id) {
-        return id;
-    }
-
 }
